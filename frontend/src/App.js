@@ -1,24 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import MainLayout from './components/Layout/MainLayout';
+import ProtectedRoute from './components/Layout/ProtectedRoute';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import CashierPage from './pages/CashierPage';
+import ProductsPage from './pages/ProductsPage';
+import CategoriesPage from './pages/CategoriesPage';
+import StockInPage from './pages/StockInPage';
+import StockAdjustmentPage from './pages/StockAdjustmentPage';
+import LowStockPage from './pages/LowStockPage';
+import TransactionsPage from './pages/TransactionsPage';
+import ReportsPage from './pages/ReportsPage';
+import UsersPage from './pages/UsersPage';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      
+      <Route element={<ProtectedRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/kasir" element={<CashierPage />} />
+          
+          <Route element={<ProtectedRoute allowedRoles={['Owner', 'admin']} />}>
+            <Route path="/produk" element={<ProductsPage />} />
+            <Route path="/kategori" element={<CategoriesPage />} />
+            <Route path="/stok-masuk" element={<StockInPage />} />
+            <Route path="/penyesuaian-stok" element={<StockAdjustmentPage />} />
+            <Route path="/stok-menipis" element={<LowStockPage />} />
+            <Route path="/transaksi" element={<TransactionsPage />} />
+            <Route path="/laporan" element={<ReportsPage />} />
+            <Route path="/pengguna" element={<UsersPage />} />
+          </Route>
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   );
 }
 
