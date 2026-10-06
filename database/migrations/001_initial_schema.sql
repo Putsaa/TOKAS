@@ -2,6 +2,7 @@
 -- TOKAS Database Schema - Initial Migration
 -- SQL Server
 -- ============================================
+SET QUOTED_IDENTIFIER ON;
 
 -- Create Database (run separately if needed)
 -- CREATE DATABASE TOKAS;

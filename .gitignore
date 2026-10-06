@@ -1,0 +1,49 @@
+# ==========================================
+# Secret & Environment Files (Like .env in Laravel)
+# ==========================================
+.env
+.env.*
+!.env.example
+!frontend/.env.example
+
+# ASP.NET Secrets & Configuration files containing credentials
+backend/**/appsettings.json
+backend/**/appsettings.*.json
+!backend/**/appsettings.json.example
+!backend/**/appsettings.*.json.example
+
+# ==========================================
+# .NET & Visual Studio Build Outputs
+# ==========================================
+**/[Bb]in/
+**/[Oo]bj/
+[Bb]in/
+[Oo]bj/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+
+# ==========================================
+# Node / Frontend Dependencies & Build
+# ==========================================
+**/node_modules/
+node_modules/
+**/build/
+build/
+.pnp
+.pnp.js
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# OS & Editor generated files
+# ==========================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini

@@ -1,9 +1,9 @@
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=TOKAS;Trusted_Connection=True;TrustServerCertificate=True;"
+    "DefaultConnection": "Server=YOUR_SERVER_NAME\\SQLEXPRESS;Database=TOKAS;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
   },
   "JwtSettings": {
-    "Secret": "T0K4S-S3cR3t-K3y-F0r-JWT-Auth3nt1c4t10n-2024-Must-Be-At-Least-32-Chars",
+    "Secret": "YOUR_STRONG_JWT_SECRET_KEY_HERE_MINIMUM_32_CHARS",
     "Issuer": "TOKAS",
     "Audience": "TOKAS-Client",
     "ExpirationInHours": 24
