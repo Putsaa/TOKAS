@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TOKAS.API/TOKAS.API.csproj" />
+  <Project Path="TOKAS.Application/TOKAS.Application.csproj" />
+  <Project Path="TOKAS.Domain/TOKAS.Domain.csproj" />
+  <Project Path="TOKAS.Infrastructure/TOKAS.Infrastructure.csproj" />
+</Solution>
