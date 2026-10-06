@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Button, Paper, Autocomplete } from '@mui/material';
 import api from '../services/api';
 
+import PageHeader from '../components/common/PageHeader';
+
 const StockInPage = () => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -13,7 +15,7 @@ const StockInPage = () => {
     const fetchProducts = async () => {
       try {
         const response = await api.get('/products');
-        setProducts(response.data);
+        setProducts(response.data.data?.items || []);
       } catch (error) {
         console.error('Error fetching products:', error);
       }
@@ -45,10 +47,14 @@ const StockInPage = () => {
   };
 
   return (
-    <Box p={3} display="flex" justifyContent="center">
-      <Paper sx={{ p: 4, width: '100%', maxWidth: 600 }}>
-        <Typography variant="h5" mb={3}>Barang Masuk (Stock In)</Typography>
-        <form onSubmit={handleSubmit}>
+    <Box>
+      <PageHeader 
+        title="Stok Masuk" 
+        subtitle="Tambahkan stok barang ke inventaris"
+      />
+      <Box display="flex" justifyContent="center">
+        <Paper sx={{ p: 4, width: '100%', maxWidth: 600 }}>
+          <form onSubmit={handleSubmit}>
           <Box display="flex" flexDirection="column" gap={3}>
             <Autocomplete
               options={products}
@@ -84,6 +90,7 @@ const StockInPage = () => {
           </Box>
         </form>
       </Paper>
+      </Box>
     </Box>
   );
 };

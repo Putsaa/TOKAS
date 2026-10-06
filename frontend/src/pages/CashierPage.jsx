@@ -12,6 +12,8 @@ import { useSnackbar } from 'notistack';
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
 
+import PageHeader from '../components/common/PageHeader';
+
 const CashierPage = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
@@ -21,25 +23,29 @@ const CashierPage = () => {
   const [lastTransaction, setLastTransaction] = useState(null);
   const { enqueueSnackbar } = useSnackbar();
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = React.useCallback(async () => {
     try {
       const response = await api.get('/products?active=true');
-      setProducts(response.data);
+      setProducts(response.data.data?.items || []);
     } catch (error) {
       enqueueSnackbar('Gagal memuat produk', { variant: 'error' });
     }
-  };
+  }, [enqueueSnackbar]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const filteredProducts = useMemo(() => {
-    return products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.code.toLowerCase().includes(search.toLowerCase()));
+    return products.filter(p => {
+      const nama = p.nama || '';
+      const kode = p.kode || '';
+      return nama.toLowerCase().includes(search.toLowerCase()) || kode.toLowerCase().includes(search.toLowerCase());
+    });
   }, [products, search]);
 
   const addToCart = (product) => {
-    if (product.stock <= 0) {
+    if (product.stok <= 0) {
       enqueueSnackbar('Stok habis', { variant: 'warning' });
       return;
     }
@@ -47,7 +53,7 @@ const CashierPage = () => {
     setCart(prev => {
       const existing = prev.find(item => item.productId === product.id);
       if (existing) {
-        if (existing.quantity >= product.stock) {
+        if (existing.quantity >= product.stok) {
           enqueueSnackbar('Mencapai batas stok', { variant: 'warning' });
           return prev;
         }
@@ -55,7 +61,7 @@ const CashierPage = () => {
           item.productId === product.id ? { ...item, quantity: item.quantity + 1, subtotal: (item.quantity + 1) * item.price } : item
         );
       }
-      return [...prev, { productId: product.id, name: product.name, price: product.price, quantity: 1, subtotal: product.price }];
+      return [...prev, { productId: product.id, name: product.nama, price: product.hargaJual, quantity: 1, subtotal: product.hargaJual }];
     });
   };
 
@@ -66,7 +72,7 @@ const CashierPage = () => {
           const newQuantity = item.quantity + delta;
           if (newQuantity <= 0) return item;
           const product = products.find(p => p.id === productId);
-          if (product && newQuantity > product.stock) {
+          if (product && newQuantity > product.stok) {
             enqueueSnackbar('Mencapai batas stok', { variant: 'warning' });
             return item;
           }
@@ -107,7 +113,11 @@ const CashierPage = () => {
 
   return (
     <Box>
-      <Grid container spacing={2} sx={{ height: 'calc(100vh - 100px)' }}>
+      <PageHeader 
+        title="Kasir" 
+        subtitle="Proses transaksi penjualan (Point of Sale)"
+      />
+      <Grid container spacing={2} sx={{ height: 'calc(100vh - 200px)' }}>
         {/* Left Panel: Products */}
         <Grid item xs={12} md={7} sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Paper sx={{ p: 2, mb: 2 }}>
@@ -128,22 +138,22 @@ const CashierPage = () => {
                   <Paper 
                     sx={{ 
                       p: 2, 
-                      cursor: product.stock > 0 ? 'pointer' : 'not-allowed', 
-                      bgcolor: product.stock > 0 ? 'background.paper' : 'action.hover',
+                      cursor: product.stok > 0 ? 'pointer' : 'not-allowed', 
+                      bgcolor: product.stok > 0 ? 'background.paper' : 'action.hover',
                       border: '1px solid',
                       borderColor: 'divider',
                       '&:hover': { borderColor: 'primary.main' }
                     }}
-                    onClick={() => product.stock > 0 && addToCart(product)}
+                    onClick={() => product.stok > 0 && addToCart(product)}
                   >
-                    <Typography variant="subtitle2" noWrap>{product.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">{product.code}</Typography>
+                    <Typography variant="subtitle2" noWrap>{product.nama}</Typography>
+                    <Typography variant="body2" color="text.secondary">{product.kode}</Typography>
                     <Box mt={1} display="flex" justifyContent="space-between" alignItems="center">
                       <Typography variant="body1" color="primary.main" fontWeight="bold">
-                        {formatCurrency(product.price)}
+                        {formatCurrency(product.hargaJual)}
                       </Typography>
-                      <Typography variant="caption" color={product.stock > 0 ? 'text.secondary' : 'error'}>
-                        Stok: {product.stock}
+                      <Typography variant="caption" color={product.stok > 0 ? 'text.secondary' : 'error'}>
+                        Stok: {product.stok}
                       </Typography>
                     </Box>
                   </Paper>

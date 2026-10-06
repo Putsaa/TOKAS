@@ -8,6 +8,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import api from '../services/api';
 
+import PageHeader from '../components/common/PageHeader';
+
 const CategoriesPage = () => {
   const [categories, setCategories] = useState([]);
   const [open, setOpen] = useState(false);
@@ -16,7 +18,7 @@ const CategoriesPage = () => {
   const fetchCategories = async () => {
     try {
       const response = await api.get('/categories');
-      setCategories(response.data);
+      setCategories(response.data.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -69,13 +71,16 @@ const CategoriesPage = () => {
   };
 
   return (
-    <Box p={3}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Data Kategori</Typography>
-        <Button variant="contained" color="primary" onClick={() => handleOpen()}>
-          Tambah Kategori
-        </Button>
-      </Box>
+    <Box>
+      <PageHeader 
+        title="Data Kategori" 
+        subtitle="Kelola data kategori produk"
+        action={
+          <Button variant="contained" color="primary" onClick={() => handleOpen()}>
+            Tambah Kategori
+          </Button>
+        }
+      />
 
       <TableContainer component={Paper}>
         <Table>

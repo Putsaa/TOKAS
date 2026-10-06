@@ -20,7 +20,7 @@ const DashboardPage = () => {
     const fetchDashboardData = async () => {
       try {
         const response = await api.get('/dashboard');
-        setData(response.data);
+        setData(response.data.data);
       } catch (error) {
         enqueueSnackbar('Gagal mengambil data dashboard', { variant: 'error' });
       } finally {
@@ -45,7 +45,10 @@ const DashboardPage = () => {
 
   return (
     <Box>
-      <PageHeader title="Dashboard" />
+      <PageHeader 
+        title="Dashboard" 
+        subtitle="Ringkasan aktivitas dan performa toko Anda"
+      />
       
       <Grid container spacing={3} mb={4}>
         {kpiCards.map((card, index) => (
@@ -100,9 +103,9 @@ const DashboardPage = () => {
                 <TableBody>
                   {lowStock && lowStock.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{item.name}</TableCell>
+                      <TableCell>{item.nama}</TableCell>
                       <TableCell align="right" sx={{ color: 'error.main', fontWeight: 'bold' }}>
-                        {item.stock}
+                        {item.stok}
                       </TableCell>
                     </TableRow>
                   ))}

@@ -8,6 +8,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import api from '../services/api';
 
+import PageHeader from '../components/common/PageHeader';
+
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [open, setOpen] = useState(false);
@@ -18,7 +20,7 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     try {
       const response = await api.get('/products');
-      setProducts(response.data);
+      setProducts(response.data.data?.items || []);
     } catch (error) {
       console.error('Error fetching products:', error);
     }
@@ -71,13 +73,16 @@ const ProductsPage = () => {
   };
 
   return (
-    <Box p={3}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Data Produk</Typography>
-        <Button variant="contained" color="primary" onClick={() => handleOpen()}>
-          Tambah Produk
-        </Button>
-      </Box>
+    <Box>
+      <PageHeader 
+        title="Data Produk" 
+        subtitle="Kelola data produk dan inventaris toko"
+        action={
+          <Button variant="contained" color="primary" onClick={() => handleOpen()}>
+            Tambah Produk
+          </Button>
+        }
+      />
 
       <TableContainer component={Paper}>
         <Table>

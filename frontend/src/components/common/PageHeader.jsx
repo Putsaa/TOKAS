@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Typography, Breadcrumbs, Link } from '@mui/material';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import HomeIcon from '@mui/icons-material/Home';
 
 const pathNameMap = {
   '': 'Dashboard',
@@ -41,7 +42,14 @@ const PageHeader = ({ title, subtitle, action }) => {
       </Box>
       
       <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
-        <Link component={RouterLink} underline="hover" color="inherit" to="/" sx={{ display: 'flex', alignItems: 'center' }}>
+        <Link 
+          component={RouterLink} 
+          underline="hover" 
+          color="inherit" 
+          to="/" 
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
+          <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
           Dashboard
         </Link>
         {pathnames.map((value, index) => {
@@ -50,11 +58,11 @@ const PageHeader = ({ title, subtitle, action }) => {
           const label = pathNameMap[value] || value.charAt(0).toUpperCase() + value.slice(1);
 
           return last ? (
-            <Typography color="primary" key={to} fontWeight="medium">
+            <Typography color="primary" key={to} fontWeight="medium" sx={{ display: 'flex', alignItems: 'center' }}>
               {label}
             </Typography>
           ) : (
-            <Link component={RouterLink} underline="hover" color="inherit" to={to} key={to}>
+            <Link component={RouterLink} underline="hover" color="inherit" to={to} key={to} sx={{ display: 'flex', alignItems: 'center' }}>
               {label}
             </Link>
           );
