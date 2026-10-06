@@ -1,0 +1,6 @@
+C:\Users\526007\Project\TOKAS\backend\TOKAS.Infrastructure\obj\Debug\net9.0\TOKAS.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\526007\Project\TOKAS\backend\TOKAS.Infrastructure\obj\Debug\net9.0\TOKAS.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\526007\Project\TOKAS\backend\TOKAS.Infrastructure\obj\Debug\net9.0\TOKAS.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\526007\Project\TOKAS\backend\TOKAS.Infrastructure\obj\Debug\net9.0\TOKAS.Infrastructure.AssemblyInfo.cs
+C:\Users\526007\Project\TOKAS\backend\TOKAS.Infrastructure\obj\Debug\net9.0\TOKAS.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\526007\Project\TOKAS\backend\TOKAS.Infrastructure\obj\Debug\net9.0\TOKAS.Infrastructure.sourcelink.json

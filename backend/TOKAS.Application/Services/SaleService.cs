@@ -2,7 +2,6 @@ using TOKAS.Application.DTOs.Cashier;
 using TOKAS.Application.Interfaces;
 using TOKAS.Application.Interfaces.Repositories;
 using TOKAS.Domain.Entities;
-using TOKAS.Infrastructure.Data;
 
 namespace TOKAS.Application.Services;
 
@@ -11,9 +10,9 @@ public class SaleService : ISaleService
     private readonly ISaleRepository _saleRepository;
     private readonly IProductRepository _productRepository;
     private readonly IStockTransactionRepository _stockTransactionRepository;
-    private readonly DbConnectionFactory _db;
+    private readonly IDbConnectionFactory _db;
 
-    public SaleService(ISaleRepository saleRepository, IProductRepository productRepository, IStockTransactionRepository stockTransactionRepository, DbConnectionFactory db)
+    public SaleService(ISaleRepository saleRepository, IProductRepository productRepository, IStockTransactionRepository stockTransactionRepository, IDbConnectionFactory db)
     {
         _saleRepository = saleRepository;
         _productRepository = productRepository;

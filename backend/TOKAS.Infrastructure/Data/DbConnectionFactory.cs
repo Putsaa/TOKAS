@@ -1,10 +1,11 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using TOKAS.Application.Interfaces;
 
 namespace TOKAS.Infrastructure.Data;
 
-public class DbConnectionFactory
+public class DbConnectionFactory : IDbConnectionFactory
 {
     private readonly string _connectionString;
 
