@@ -1,0 +1,20 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace TOKAS.Application.DTOs.Users;
+
+public class CreateUserRequest
+{
+    [Required(ErrorMessage = "Nama wajib diisi")]
+    [MaxLength(100, ErrorMessage = "Nama maksimal 100 karakter")]
+    public string Name { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Username wajib diisi")]
+    [MaxLength(50, ErrorMessage = "Username maksimal 50 karakter")]
+    public string Username { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Password wajib diisi")]
+    [MinLength(6, ErrorMessage = "Password minimal 6 karakter")]
+    public string Password { get; set; } = string.Empty;
+
+    public int RoleId { get; set; } = 2;
+}
