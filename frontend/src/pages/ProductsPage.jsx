@@ -84,43 +84,82 @@ const ProductsPage = () => {
         }
       />
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Kode</TableCell>
-              <TableCell>Nama</TableCell>
-              <TableCell>Kategori</TableCell>
-              <TableCell align="right">Harga Beli</TableCell>
-              <TableCell align="right">Harga Jual</TableCell>
-              <TableCell align="right">Stok</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="center">Aksi</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {products.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.kode}</TableCell>
-                <TableCell>{row.nama}</TableCell>
-                <TableCell>{row.kategori}</TableCell>
-                <TableCell align="right">{row.hargaBeli}</TableCell>
-                <TableCell align="right">{row.hargaJual}</TableCell>
-                <TableCell align="right">{row.stok}</TableCell>
-                <TableCell>{row.status}</TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" onClick={() => handleOpen(row)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" onClick={() => handleDelete(row.id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Box sx={{ mb: 4 }}>
+        <Paper elevation={6} sx={{ borderRadius: 2.5, p: { xs: 2, sm: 2.5, md: 3 }, mb: 3 }}>
+          <Paper variant="outlined" sx={{ overflow: "hidden", borderRadius: 2 }}>
+            <TableContainer sx={{ overflowX: "auto" }}>
+              <Table>
+                <TableHead sx={{ bgcolor: "#f8fafc" }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 700, color: '#475569', py: 2, px: 2.5 }}>Kode</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: '#475569', py: 2, px: 2.5 }}>Nama</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: '#475569', py: 2, px: 2.5 }}>Kategori</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', py: 2, px: 2.5 }}>Harga Beli</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', py: 2, px: 2.5 }}>Harga Jual</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', py: 2, px: 2.5 }}>Stok</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: '#475569', py: 2, px: 2.5 }}>Status</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 700, color: '#475569', py: 2, px: 2.5 }}>Aksi</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {products.map((row) => (
+                    <TableRow key={row.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                      <TableCell sx={{ py: 2, px: 2.5, fontWeight: 500, color: '#0f172a' }}>{row.kode}</TableCell>
+                      <TableCell sx={{ py: 2, px: 2.5, fontWeight: 600, color: '#0f172a' }}>{row.nama}</TableCell>
+                      <TableCell sx={{ py: 2, px: 2.5 }}>
+                        <Box sx={{ bgcolor: '#f1f5f9', color: '#475569', px: 1.5, py: 0.5, borderRadius: 1.5, display: 'inline-block', fontSize: '0.75rem', fontWeight: 600 }}>
+                          {row.kategori}
+                        </Box>
+                      </TableCell>
+                      <TableCell align="right" sx={{ py: 2, px: 2.5 }}>Rp {row.hargaBeli.toLocaleString()}</TableCell>
+                      <TableCell align="right" sx={{ py: 2, px: 2.5, fontWeight: 700, color: '#0f172a' }}>Rp {row.hargaJual.toLocaleString()}</TableCell>
+                      <TableCell align="right" sx={{ py: 2, px: 2.5 }}>
+                        <Box sx={{ 
+                          color: row.stok < 10 ? 'error.main' : 'success.main',
+                          fontWeight: 700
+                        }}>
+                          {row.stok}
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ py: 2, px: 2.5 }}>
+                        <Box
+                          sx={{
+                            display: 'inline-block',
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: 1.5,
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            bgcolor: row.status === 'Aktif' ? '#f0fdf4' : '#fef2f2',
+                            color: row.status === 'Aktif' ? '#16a34a' : '#dc2626',
+                          }}
+                        >
+                          {row.status}
+                        </Box>
+                      </TableCell>
+                      <TableCell align="center" sx={{ py: 2, px: 2.5 }}>
+                        <IconButton color="primary" onClick={() => handleOpen(row)} size="small" sx={{ mr: 1, bgcolor: '#eff6ff', '&:hover': { bgcolor: '#dbeafe' } }}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton color="error" onClick={() => handleDelete(row.id)} size="small" sx={{ bgcolor: '#fef2f2', '&:hover': { bgcolor: '#fee2e2' } }}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {products.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={8} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                        Tidak ada data produk
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Paper>
+      </Box>
 
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>{formData.id ? 'Edit Produk' : 'Tambah Produk'}</DialogTitle>

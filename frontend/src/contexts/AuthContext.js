@@ -12,25 +12,33 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = () => {
       if (token) {
         try {
-          const base64Url = token.split('.')[1];
-          let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const pad = base64.length % 4;
-          if (pad) {
-            if (pad === 1) {
-              throw new Error('InvalidLengthError');
+          const savedUser = localStorage.getItem('tokas_user');
+          if (savedUser) {
+            setUser(JSON.parse(savedUser));
+          } else {
+            const base64Url = token.split('.')[1];
+            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const pad = base64.length % 4;
+            if (pad) {
+              if (pad === 1) {
+                throw new Error('InvalidLengthError');
+              }
+              base64 += new Array(5 - pad).join('=');
             }
-            base64 += new Array(5 - pad).join('=');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            const parsedPayload = JSON.parse(jsonPayload);
+            const role = parsedPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || parsedPayload.role;
+            const name = parsedPayload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || parsedPayload.unique_name || parsedPayload.name;
+            parsedPayload.role = role;
+            parsedPayload.name = name;
+            setUser(parsedPayload);
           }
-          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          }).join(''));
-          const parsedPayload = JSON.parse(jsonPayload);
-          const role = parsedPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || parsedPayload.role;
-          parsedPayload.role = role;
-          setUser(parsedPayload);
         } catch (error) {
           console.error("Gagal mendecode token:", error);
           localStorage.removeItem('token');
+          localStorage.removeItem('tokas_user');
           setToken(null);
           setUser(null);
         }
@@ -45,31 +53,36 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     const response = await api.post('/auth/login', { username, password });
-    const { token } = response.data.data;
+    const { token, user: userData } = response.data.data;
     localStorage.setItem('token', token);
     setToken(token);
     
-    // Decode user immediately to avoid race conditions after login
-    const base64Url = token.split('.')[1];
-    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const pad = base64.length % 4;
-    if (pad) {
-      if (pad === 1) {
-        throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
+    if (userData) {
+      localStorage.setItem('tokas_user', JSON.stringify(userData));
+      setUser(userData);
+    } else {
+      // Decode user fallback
+      const base64Url = token.split('.')[1];
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const pad = base64.length % 4;
+      if (pad && pad !== 1) {
+        base64 += new Array(5 - pad).join('=');
       }
-      base64 += new Array(5 - pad).join('=');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      const parsedPayload = JSON.parse(jsonPayload);
+      const role = parsedPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || parsedPayload.role;
+      const name = parsedPayload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || parsedPayload.unique_name || parsedPayload.name;
+      parsedPayload.role = role;
+      parsedPayload.name = name;
+      setUser(parsedPayload);
     }
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    const parsedPayload = JSON.parse(jsonPayload);
-    const role = parsedPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || parsedPayload.role;
-    parsedPayload.role = role;
-    setUser(parsedPayload);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('tokas_user');
     setToken(null);
     setUser(null);
   };

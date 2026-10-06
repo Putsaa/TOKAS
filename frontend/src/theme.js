@@ -53,12 +53,43 @@ const theme = createTheme({
         }
       },
     },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          padding: '14px 18px',
+          borderColor: '#f1f5f9',
+          fontSize: '0.875rem',
+        },
+        head: {
+          fontWeight: 700,
+          color: '#475569',
+          backgroundColor: '#f8fafc',
+          padding: '14px 18px',
+          borderBottom: '2px solid #e2e8f0',
+          fontSize: '0.8125rem',
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
+        },
+      },
+    },
+    MuiTableRow: {
+      styleOverrides: {
+        root: {
+          '&:last-child td': {
+            borderBottom: 0,
+          },
+          '&:hover': {
+            backgroundColor: '#f8fafc',
+          },
+        },
+      },
+    },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16,
-          boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.05), 0px 10px 15px -5px rgba(0, 0, 0, 0.05)',
-          border: '1px solid #F3F4F6',
+          borderRadius: 12,
+          boxShadow: '0 4px 20px 1px rgba(0, 0, 0, 0.06)',
+          border: '1px solid #f1f5f9',
         },
       },
     },

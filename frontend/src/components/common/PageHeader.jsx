@@ -22,52 +22,95 @@ const PageHeader = ({ title, subtitle, action }) => {
   const pathnames = location.pathname.split('/').filter((x) => x);
 
   return (
-    <Box mb={4}>
-      <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
-        <Box>
-          <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom={!!subtitle}>
-            {title}
-          </Typography>
-          {subtitle && (
-            <Typography variant="body1" color="text.secondary">
-              {subtitle}
+    <Box sx={{ mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', mb: subtitle || action ? 1.5 : 0 }}>
+        {title && (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography
+              variant="h6"
+              component="h1"
+              sx={{
+                fontWeight: 700,
+                fontSize: '1rem',
+                color: 'text.primary',
+                textTransform: 'capitalize'
+              }}
+            >
+              {title}
             </Typography>
-          )}
-        </Box>
+            <Typography
+              component="span"
+              sx={{
+                mx: 1.5,
+                color: 'text.disabled',
+                fontWeight: 300,
+                fontSize: '1rem'
+              }}
+            >
+              |
+            </Typography>
+          </Box>
+        )}
+        <Breadcrumbs
+          separator={<NavigateNextIcon sx={{ fontSize: '1rem', color: 'text.disabled' }} />}
+          aria-label="breadcrumb"
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
+          <Link 
+            component={RouterLink} 
+            underline="hover" 
+            color="primary" 
+            to="/" 
+            sx={{ display: 'flex', alignItems: 'center' }}
+          >
+            <HomeIcon sx={{ fontSize: '1.2rem' }} color="primary" />
+          </Link>
+          {pathnames.map((value, index) => {
+            const last = index === pathnames.length - 1;
+            const to = `/${pathnames.slice(0, index + 1).join('/')}`;
+            const label = pathNameMap[value] || value.charAt(0).toUpperCase() + value.slice(1);
+
+            return last ? (
+              <Typography
+                key={to}
+                sx={{
+                  fontSize: '0.875rem',
+                  color: 'text.secondary',
+                  textTransform: 'capitalize'
+                }}
+              >
+                {label}
+              </Typography>
+            ) : (
+              <Link
+                component={RouterLink}
+                underline="hover"
+                to={to}
+                key={to}
+                sx={{
+                  fontSize: '0.875rem',
+                  color: 'text.secondary',
+                  textTransform: 'capitalize'
+                }}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </Breadcrumbs>
+
         {action && (
-          <Box>
+          <Box sx={{ ml: 'auto' }}>
             {action}
           </Box>
         )}
       </Box>
-      
-      <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
-        <Link 
-          component={RouterLink} 
-          underline="hover" 
-          color="inherit" 
-          to="/" 
-          sx={{ display: 'flex', alignItems: 'center' }}
-        >
-          <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-          Dashboard
-        </Link>
-        {pathnames.map((value, index) => {
-          const last = index === pathnames.length - 1;
-          const to = `/${pathnames.slice(0, index + 1).join('/')}`;
-          const label = pathNameMap[value] || value.charAt(0).toUpperCase() + value.slice(1);
 
-          return last ? (
-            <Typography color="primary" key={to} fontWeight="medium" sx={{ display: 'flex', alignItems: 'center' }}>
-              {label}
-            </Typography>
-          ) : (
-            <Link component={RouterLink} underline="hover" color="inherit" to={to} key={to} sx={{ display: 'flex', alignItems: 'center' }}>
-              {label}
-            </Link>
-          );
-        })}
-      </Breadcrumbs>
+      {subtitle && (
+        <Typography variant="body2" color="text.secondary">
+          {subtitle}
+        </Typography>
+      )}
     </Box>
   );
 };

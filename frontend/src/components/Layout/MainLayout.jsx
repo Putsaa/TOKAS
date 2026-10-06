@@ -1,181 +1,172 @@
 import React, { useState } from 'react';
 import { 
-  Box, Drawer, AppBar, Toolbar, List, Typography, Divider, IconButton, 
-  ListItem, ListItemButton, ListItemIcon, ListItemText, Button, useTheme
+  Box, Drawer, Toolbar, List, 
+  ListItem, ListItemButton, ListItemIcon, ListItemText, Divider
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import DashboardIcon from '@mui/icons-material/Dashboard';
+import HomeIcon from '@mui/icons-material/Home';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import CategoryIcon from '@mui/icons-material/Category';
-import AddBoxIcon from '@mui/icons-material/AddBox';
-import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
-import WarningIcon from '@mui/icons-material/Warning';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import PeopleIcon from '@mui/icons-material/People';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { useAuth } from '../../contexts/AuthContext';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import GridViewIcon from '@mui/icons-material/GridView';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import HistoryIcon from '@mui/icons-material/History';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
+import AppTopbar from '../common/AppTopbar';
 
 import tokasLogo from '../../tokas.png';
 
-const drawerWidth = 260;
+const drawerWidth = 220;
 
 const MainLayout = () => {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const isOwner = user?.role === 'Owner' || user?.role === 'admin';
-
-  const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/', show: true },
-    { text: 'Kasir', icon: <PointOfSaleIcon />, path: '/kasir', show: true },
-    { type: 'divider', show: isOwner },
-    { text: 'Produk', icon: <InventoryIcon />, path: '/produk', show: isOwner },
-    { text: 'Kategori', icon: <CategoryIcon />, path: '/kategori', show: isOwner },
-    { type: 'divider', show: isOwner },
-    { text: 'Stok Masuk', icon: <AddBoxIcon />, path: '/stok-masuk', show: isOwner },
-    { text: 'Penyesuaian Stok', icon: <SettingsBackupRestoreIcon />, path: '/penyesuaian-stok', show: isOwner },
-    { text: 'Stok Menipis', icon: <WarningIcon />, path: '/stok-menipis', show: isOwner },
-    { type: 'divider', show: isOwner },
-    { text: 'Transaksi', icon: <ReceiptIcon />, path: '/transaksi', show: isOwner },
-    { text: 'Laporan', icon: <AssessmentIcon />, path: '/laporan', show: isOwner },
-    { type: 'divider', show: isOwner },
-    { text: 'Pengguna', icon: <PeopleIcon />, path: '/pengguna', show: isOwner },
+  const navItems = [
+    { text: 'Dashboard', icon: <HomeIcon sx={{ fontSize: 20 }} />, path: '/' },
+    { text: 'Kasir', icon: <PointOfSaleIcon sx={{ fontSize: 20 }} />, path: '/kasir' },
+    { isDivider: true, id: 'div-1' },
+    { text: 'Produk', icon: <Inventory2OutlinedIcon sx={{ fontSize: 20 }} />, path: '/produk' },
+    { text: 'Kategori', icon: <GridViewIcon sx={{ fontSize: 20 }} />, path: '/kategori' },
+    { text: 'Stok Masuk', icon: <FileDownloadIcon sx={{ fontSize: 20 }} />, path: '/stok-masuk' },
+    { text: 'Penyesuaian Stok', icon: <HistoryIcon sx={{ fontSize: 20 }} />, path: '/penyesuaian-stok' },
+    { text: 'Stok Menipis', icon: <WarningAmberIcon sx={{ fontSize: 20 }} />, path: '/stok-menipis', badge: 3 },
+    { isDivider: true, id: 'div-2' },
+    { text: 'Riwayat Transaksi', icon: <ArticleOutlinedIcon sx={{ fontSize: 20 }} />, path: '/transaksi' },
+    { text: 'Laporan', icon: <BarChartIcon sx={{ fontSize: 20 }} />, path: '/laporan' },
+    { text: 'Pengguna', icon: <GroupOutlinedIcon sx={{ fontSize: 20 }} />, path: '/pengguna' },
   ];
 
   const drawer = (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Toolbar sx={{ justifyContent: 'center', py: 3, minHeight: '90px !important' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: '#ffffff' }}>
+      <Toolbar 
+        sx={{ 
+          height: 72, 
+          minHeight: '72px !important', 
+          maxHeight: '72px !important',
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          px: 2, 
+          py: 0,
+        }}
+      >
         <Box 
           component="img" 
           src={tokasLogo} 
-          alt="TOKAS Logo" 
+          alt="TOKAS" 
           sx={{ 
-            height: 'auto', 
-            width: '80%', 
-            maxWidth: 200, 
-            objectFit: 'contain' 
+            height: 38, 
+            width: 'auto',
+            maxWidth: '170px',
+            objectFit: 'contain', 
+            display: 'block',
           }} 
         />
       </Toolbar>
-      <Divider sx={{ mb: 2 }} />
-      <List sx={{ px: 2, flexGrow: 1, overflowY: 'auto' }}>
-        {menuItems.filter(item => item.show).map((item, index) => {
-          if (item.type === 'divider') {
-            return <Divider key={`div-${index}`} sx={{ my: 1, mx: -2 }} />;
-          }
-          
-          const isSelected = location.pathname === item.path;
-          return (
-            <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
-              <ListItemButton 
-                onClick={() => navigate(item.path)}
-                selected={isSelected}
-                sx={{
-                  borderRadius: 2,
-                  '&.Mui-selected': {
-                    backgroundColor: 'primary.main',
-                    color: 'primary.contrastText',
-                    '&:hover': {
-                      backgroundColor: 'primary.dark',
-                    },
-                    '& .MuiListItemIcon-root': {
-                      color: 'primary.contrastText',
-                    },
-                  },
-                  '&:hover': {
-                    backgroundColor: 'primary.light',
-                    color: 'primary.contrastText',
-                    '& .MuiListItemIcon-root': {
-                      color: 'primary.contrastText',
-                    },
-                  }
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 40, color: isSelected ? 'inherit' : 'text.secondary' }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText 
-                  primary={item.text} 
-                  primaryTypographyProps={{ 
-                    fontWeight: isSelected ? 600 : 500,
-                    fontSize: '0.95rem'
-                  }} 
+
+      <Box 
+        sx={{ 
+          px: 1.5, 
+          py: 1,
+          flexGrow: 1, 
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+          msOverflowStyle: 'none'
+        }}
+      >
+        <List disablePadding>
+          {navItems.map((item) => {
+            if (item.isDivider) {
+              return (
+                <Divider 
+                  key={item.id} 
+                  sx={{ my: 1, mx: 1, borderColor: '#f1f5f9' }} 
                 />
-              </ListItemButton>
-            </ListItem>
-          );
-        })}
-      </List>
-      <Divider />
-      <Box sx={{ p: 2 }}>
-        <Button 
-          fullWidth 
-          variant="outlined" 
-          color="error" 
-          onClick={handleLogout} 
-          startIcon={<LogoutIcon />}
-          sx={{ borderRadius: 2 }}
-        >
-          Logout
-        </Button>
+              );
+            }
+
+            const isSelected = location.pathname === item.path;
+            return (
+              <ListItem key={item.text} disablePadding sx={{ mb: 0.35 }}>
+                <ListItemButton 
+                  onClick={() => navigate(item.path)}
+                  selected={isSelected}
+                  sx={{
+                    borderRadius: '10px',
+                    px: 1.5,
+                    py: 0.7,
+                    minHeight: 40,
+                    color: isSelected ? '#2563eb' : '#64748b',
+                    bgcolor: isSelected ? '#eff6ff !important' : 'transparent',
+                    fontWeight: isSelected ? 600 : 500,
+                    transition: 'all 0.15s ease-in-out',
+                    position: 'relative',
+                    '& .MuiListItemIcon-root': {
+                      color: isSelected ? '#2563eb' : '#94a3b8',
+                      minWidth: 32,
+                      transition: 'color 0.15s',
+                    },
+                    '&:hover': {
+                      bgcolor: isSelected ? '#eff6ff' : '#f8fafc',
+                      color: isSelected ? '#2563eb' : '#0f172a',
+                      '& .MuiListItemIcon-root': {
+                        color: isSelected ? '#2563eb' : '#2563eb',
+                      }
+                    }
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 32 }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={item.text} 
+                    primaryTypographyProps={{ 
+                      fontWeight: isSelected ? 700 : 500,
+                      fontSize: '0.84rem',
+                      letterSpacing: '-0.01em',
+                    }} 
+                  />
+                  {item.badge && (
+                    <Box
+                      sx={{
+                        bgcolor: '#fee2e2',
+                        color: '#ef4444',
+                        borderRadius: '20px',
+                        px: 0.9,
+                        py: 0.2,
+                        minWidth: 20,
+                        height: 20,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                      }}
+                    >
+                      {item.badge}
+                    </Box>
+                  )}
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
+        </List>
       </Box>
     </Box>
   );
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBar
-        position="fixed"
-        elevation={0}
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-          bgcolor: 'background.paper',
-          color: 'text.primary',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-            <Typography variant="h6" noWrap component="div" fontWeight="bold">
-              TOKAS POS
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" fontWeight="medium" color="text.secondary">
-              Halo, {user?.name || user?.username}
-            </Typography>
-            <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: 'primary.main', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
-              {(user?.name || user?.username || 'U')[0].toUpperCase()}
-            </Box>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      <AppTopbar drawerWidth={drawerWidth} onDrawerToggle={handleDrawerToggle} />
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
@@ -193,8 +184,8 @@ const MainLayout = () => {
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: drawerWidth,
-              borderRight: 'none',
-              boxShadow: '4px 0 10px rgba(0,0,0,0.05)'
+              borderRight: '1px solid #f1f5f9',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
             },
           }}
         >
@@ -207,9 +198,9 @@ const MainLayout = () => {
             '& .MuiDrawer-paper': { 
               boxSizing: 'border-box', 
               width: drawerWidth,
-              borderRight: 'none',
-              boxShadow: '4px 0 10px rgba(0,0,0,0.05)',
-              backgroundColor: 'background.paper',
+              borderRight: '1px solid #f1f5f9',
+              boxShadow: '2px 0 12px rgba(0,0,0,0.03)',
+              backgroundColor: '#ffffff',
             },
           }}
           open
@@ -221,13 +212,15 @@ const MainLayout = () => {
         component="main"
         sx={{ 
           flexGrow: 1, 
-          p: 3, 
           width: { sm: `calc(100% - ${drawerWidth}px)` }, 
-          backgroundColor: 'background.default', 
-          minHeight: '100vh' 
+          backgroundColor: '#f8fafc', 
+          minHeight: '100vh',
+          boxSizing: 'border-box',
+          overflowX: 'hidden',
+          p: { xs: 1.5, sm: 2, md: 2.25 },
         }}
       >
-        <Toolbar />
+        <Toolbar sx={{ height: 72, minHeight: '72px !important', mb: 1 }} />
         <Outlet />
       </Box>
     </Box>

@@ -82,33 +82,61 @@ const CategoriesPage = () => {
         }
       />
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Nama Kategori</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="center">Aksi</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {categories.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.nama}</TableCell>
-                <TableCell>{row.status}</TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" onClick={() => handleOpen(row)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton color="error" onClick={() => handleDelete(row.id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Box sx={{ mb: 4 }}>
+        <Paper elevation={6} sx={{ borderRadius: 2.5, p: { xs: 2, sm: 2.5, md: 3 }, mb: 3 }}>
+          <Paper variant="outlined" sx={{ overflow: "hidden", borderRadius: 2 }}>
+            <TableContainer sx={{ overflowX: "auto" }}>
+              <Table>
+                <TableHead sx={{ bgcolor: "#f8fafc" }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 700, color: '#475569', py: 2, px: 3 }}>Nama Kategori</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: '#475569', py: 2, px: 3 }}>Status</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 700, color: '#475569', py: 2, px: 3 }}>Aksi</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {categories.map((row) => (
+                    <TableRow key={row.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                      <TableCell sx={{ py: 2, px: 3, fontWeight: 600, color: '#0f172a' }}>{row.nama}</TableCell>
+                      <TableCell sx={{ py: 2, px: 3 }}>
+                        <Box
+                          sx={{
+                            display: 'inline-block',
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: 1.5,
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            bgcolor: row.status === 'Aktif' ? '#f0fdf4' : '#fef2f2',
+                            color: row.status === 'Aktif' ? '#16a34a' : '#dc2626',
+                          }}
+                        >
+                          {row.status}
+                        </Box>
+                      </TableCell>
+                      <TableCell align="center" sx={{ py: 2, px: 3 }}>
+                        <IconButton color="primary" onClick={() => handleOpen(row)} size="small" sx={{ mr: 1, bgcolor: '#eff6ff', '&:hover': { bgcolor: '#dbeafe' } }}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton color="error" onClick={() => handleDelete(row.id)} size="small" sx={{ bgcolor: '#fef2f2', '&:hover': { bgcolor: '#fee2e2' } }}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {categories.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={3} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                        Tidak ada data kategori
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Paper>
+      </Box>
 
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>{formData.id ? 'Edit Kategori' : 'Tambah Kategori'}</DialogTitle>

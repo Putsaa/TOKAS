@@ -52,8 +52,8 @@ const StockInPage = () => {
         title="Stok Masuk" 
         subtitle="Tambahkan stok barang ke inventaris"
       />
-      <Box display="flex" justifyContent="center">
-        <Paper sx={{ p: 4, width: '100%', maxWidth: 600 }}>
+      <Box display="flex" justifyContent="center" sx={{ pb: { xs: 3, md: 4 } }}>
+        <Paper elevation={6} sx={{ p: { xs: 2.5, sm: 3, md: 4 }, width: '100%', maxWidth: 600, borderRadius: 2.5 }}>
           <form onSubmit={handleSubmit}>
           <Box display="flex" flexDirection="column" gap={3}>
             <Autocomplete
@@ -79,11 +79,11 @@ const StockInPage = () => {
               onChange={(e) => setReason(e.target.value)}
               fullWidth
             />
-            <Button variant="contained" color="primary" type="submit" size="large">
+            <Button variant="contained" color="primary" type="submit" size="large" sx={{ py: 1.5, fontWeight: 600, borderRadius: 2 }}>
               Simpan Stok
             </Button>
             {message && (
-              <Typography color={message.includes('berhasil') ? 'success.main' : 'error.main'}>
+              <Typography color={message.includes('berhasil') ? 'success.main' : 'error.main'} sx={{ fontWeight: 500, textAlign: 'center' }}>
                 {message}
               </Typography>
             )}
