@@ -1,0 +1,9 @@
+C:\Users\526007\Project\TOKAS\backend\TOKAS.API\obj\Debug\net9.0\TOKAS.API.csproj.AssemblyReference.cache
+C:\Users\526007\Project\TOKAS\backend\TOKAS.API\obj\Debug\net9.0\rpswa.dswa.cache.json
+C:\Users\526007\Project\TOKAS\backend\TOKAS.API\obj\Debug\net9.0\TOKAS.API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\526007\Project\TOKAS\backend\TOKAS.API\obj\Debug\net9.0\TOKAS.API.AssemblyInfoInputs.cache
+C:\Users\526007\Project\TOKAS\backend\TOKAS.API\obj\Debug\net9.0\TOKAS.API.AssemblyInfo.cs
+C:\Users\526007\Project\TOKAS\backend\TOKAS.API\obj\Debug\net9.0\TOKAS.API.csproj.CoreCompileInputs.cache
+C:\Users\526007\Project\TOKAS\backend\TOKAS.API\obj\Debug\net9.0\TOKAS.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\526007\Project\TOKAS\backend\TOKAS.API\obj\Debug\net9.0\TOKAS.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\526007\Project\TOKAS\backend\TOKAS.API\obj\Debug\net9.0\TOKAS.API.sourcelink.json

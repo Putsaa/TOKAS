@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using TOKAS.Infrastructure.Data;
 using TOKAS.Infrastructure.Repositories;
+using TOKAS.Application.Interfaces;
 using TOKAS.Application.Interfaces.Repositories;
 
 namespace TOKAS.Infrastructure;
