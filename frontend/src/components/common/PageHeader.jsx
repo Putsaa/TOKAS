@@ -1,17 +1,65 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Breadcrumbs, Link } from '@mui/material';
+import { useLocation, Link as RouterLink } from 'react-router-dom';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
-const PageHeader = ({ title, action }) => {
+const pathNameMap = {
+  '': 'Dashboard',
+  'kasir': 'Kasir',
+  'produk': 'Produk',
+  'kategori': 'Kategori',
+  'stok-masuk': 'Stok Masuk',
+  'penyesuaian-stok': 'Penyesuaian Stok',
+  'stok-menipis': 'Stok Menipis',
+  'transaksi': 'Transaksi',
+  'laporan': 'Laporan',
+  'pengguna': 'Pengguna',
+};
+
+const PageHeader = ({ title, subtitle, action }) => {
+  const location = useLocation();
+  const pathnames = location.pathname.split('/').filter((x) => x);
+
   return (
-    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-      <Typography variant="h4" component="h1" gutterBottom={false}>
-        {title}
-      </Typography>
-      {action && (
+    <Box mb={4}>
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
         <Box>
-          {action}
+          <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom={!!subtitle}>
+            {title}
+          </Typography>
+          {subtitle && (
+            <Typography variant="body1" color="text.secondary">
+              {subtitle}
+            </Typography>
+          )}
         </Box>
-      )}
+        {action && (
+          <Box>
+            {action}
+          </Box>
+        )}
+      </Box>
+      
+      <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
+        <Link component={RouterLink} underline="hover" color="inherit" to="/" sx={{ display: 'flex', alignItems: 'center' }}>
+          Dashboard
+        </Link>
+        {pathnames.map((value, index) => {
+          const last = index === pathnames.length - 1;
+          const to = `/${pathnames.slice(0, index + 1).join('/')}`;
+          const label = pathNameMap[value] || value.charAt(0).toUpperCase() + value.slice(1);
+
+          return last ? (
+            <Typography color="primary" key={to} fontWeight="medium">
+              {label}
+            </Typography>
+          ) : (
+            <Link component={RouterLink} underline="hover" color="inherit" to={to} key={to}>
+              {label}
+            </Link>
+          );
+        })}
+      </Breadcrumbs>
     </Box>
   );
 };

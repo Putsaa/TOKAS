@@ -24,7 +24,7 @@ function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/kasir" element={<CashierPage />} />
           
-          <Route element={<ProtectedRoute allowedRoles={['Owner', 'admin']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['Owner', 'Admin', 'admin']} />}>
             <Route path="/produk" element={<ProductsPage />} />
             <Route path="/kategori" element={<CategoriesPage />} />
             <Route path="/stok-masuk" element={<StockInPage />} />

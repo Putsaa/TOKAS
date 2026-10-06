@@ -24,7 +24,10 @@ export const AuthProvider = ({ children }) => {
           const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
               return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
           }).join(''));
-          setUser(JSON.parse(jsonPayload));
+          const parsedPayload = JSON.parse(jsonPayload);
+          const role = parsedPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || parsedPayload.role;
+          parsedPayload.role = role;
+          setUser(parsedPayload);
         } catch (error) {
           console.error("Gagal mendecode token:", error);
           localStorage.removeItem('token');
@@ -59,7 +62,10 @@ export const AuthProvider = ({ children }) => {
     const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
-    setUser(JSON.parse(jsonPayload));
+    const parsedPayload = JSON.parse(jsonPayload);
+    const role = parsedPayload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || parsedPayload.role;
+    parsedPayload.role = role;
+    setUser(parsedPayload);
   };
 
   const logout = () => {
