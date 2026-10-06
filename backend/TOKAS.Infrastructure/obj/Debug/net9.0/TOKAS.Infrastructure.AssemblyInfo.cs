@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TOKAS.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e65c053bc66348a631c07a8aabccd4ba91ddb819")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+daa4a62e926e9b475d95d20fe08d615371ca0ee9")]
 [assembly: System.Reflection.AssemblyProductAttribute("TOKAS.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TOKAS.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
