@@ -12,10 +12,19 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = () => {
       if (token) {
         try {
-          const payloadBase64 = token.split('.')[1];
-          const decodedJson = atob(payloadBase64);
-          const decodedPayload = JSON.parse(decodedJson);
-          setUser(decodedPayload);
+          const base64Url = token.split('.')[1];
+          let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const pad = base64.length % 4;
+          if (pad) {
+            if (pad === 1) {
+              throw new Error('InvalidLengthError');
+            }
+            base64 += new Array(5 - pad).join('=');
+          }
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+          setUser(JSON.parse(jsonPayload));
         } catch (error) {
           console.error("Gagal mendecode token:", error);
           localStorage.removeItem('token');
@@ -33,9 +42,24 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     const response = await api.post('/auth/login', { username, password });
-    const { token } = response.data;
+    const { token } = response.data.data;
     localStorage.setItem('token', token);
     setToken(token);
+    
+    // Decode user immediately to avoid race conditions after login
+    const base64Url = token.split('.')[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = base64.length % 4;
+    if (pad) {
+      if (pad === 1) {
+        throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
+      }
+      base64 += new Array(5 - pad).join('=');
+    }
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    setUser(JSON.parse(jsonPayload));
   };
 
   const logout = () => {

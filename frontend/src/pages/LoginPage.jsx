@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Card, CardContent, Typography, TextField, Button, Alert } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import tokasLogo from '../tokas.png';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -28,14 +29,23 @@ const LoginPage = () => {
 
   return (
     <Box 
-      display="flex" 
-      justifyContent="center" 
-      alignItems="center" 
-      minHeight="100vh"
-      bgcolor="background.default"
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        p: 2
+      }}
     >
-      <Card sx={{ maxWidth: 400, width: '100%', mx: 2 }}>
-        <CardContent sx={{ p: 4 }}>
+      <Card sx={{ maxWidth: 400, width: '100%', borderRadius: 3, boxShadow: 3 }}>
+        <CardContent sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Box 
+            component="img"
+            src={tokasLogo}
+            alt="TOKAS Logo"
+            sx={{ width: 150, height: 'auto', mb: 2 }}
+          />
           <Typography variant="h5" component="h1" gutterBottom align="center" fontWeight="bold">
             Sistem Kasir TOKAS
           </Typography>
@@ -43,9 +53,9 @@ const LoginPage = () => {
             Silakan login untuk melanjutkan
           </Typography>
 
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {error && <Alert severity="error" sx={{ mb: 2, width: '100%' }}>{error}</Alert>}
 
-          <form onSubmit={handleSubmit}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
             <TextField
               fullWidth
               label="Username"
@@ -72,12 +82,12 @@ const LoginPage = () => {
               variant="contained"
               color="primary"
               size="large"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 2, borderRadius: 2 }}
               disabled={isLoading}
             >
               {isLoading ? 'Memproses...' : 'Masuk'}
             </Button>
-          </form>
+          </Box>
         </CardContent>
       </Card>
     </Box>
