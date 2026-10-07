@@ -26,142 +26,11 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 
-import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
-import OpacityOutlinedIcon from '@mui/icons-material/OpacityOutlined';
-import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
-import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
-import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
-import ContentCutOutlinedIcon from '@mui/icons-material/ContentCutOutlined';
-import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
-import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
-
+import ProductVisual from '../components/common/ProductVisual';
 import { useSnackbar } from 'notistack';
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
-
-// Sample 12 products matching Kasir.png
-const DEFAULT_PRODUCTS = [
-  {
-    id: 1,
-    kode: 'PRD001',
-    nama: 'Kertas Thermal 58mm',
-    kategori: 'Perlengkapan Kantor',
-    hargaJual: 25000,
-    stok: 50,
-    icon: <PrintOutlinedIcon sx={{ fontSize: 48, color: '#64748b' }} />,
-    color: '#eff6ff',
-  },
-  {
-    id: 2,
-    kode: 'PRD002',
-    nama: 'Tinta Printer Kasir',
-    kategori: 'Elektronik',
-    hargaJual: 85000,
-    stok: 30,
-    icon: <OpacityOutlinedIcon sx={{ fontSize: 48, color: '#0f172a' }} />,
-    color: '#f8fafc',
-  },
-  {
-    id: 3,
-    kode: 'PRD003',
-    nama: 'Pulpen Standard',
-    kategori: 'Alat Tulis',
-    hargaJual: 3000,
-    stok: 120,
-    icon: <CreateOutlinedIcon sx={{ fontSize: 48, color: '#334155' }} />,
-    color: '#f8fafc',
-  },
-  {
-    id: 4,
-    kode: 'PRD004',
-    nama: 'Buku Tulis A5',
-    kategori: 'Alat Tulis',
-    hargaJual: 7500,
-    stok: 80,
-    icon: <MenuBookOutlinedIcon sx={{ fontSize: 48, color: '#2563eb' }} />,
-    color: '#eff6ff',
-  },
-  {
-    id: 5,
-    kode: 'PRD005',
-    nama: 'Plastik Shopping Bag',
-    kategori: 'Kebersihan',
-    hargaJual: 500,
-    stok: 200,
-    icon: <ShoppingBagOutlinedIcon sx={{ fontSize: 48, color: '#d97706' }} />,
-    color: '#fefce8',
-  },
-  {
-    id: 6,
-    kode: 'PRD006',
-    nama: 'Stapler',
-    kategori: 'Alat Tulis',
-    hargaJual: 30000,
-    stok: 25,
-    icon: <Inventory2OutlinedIcon sx={{ fontSize: 48, color: '#2563eb' }} />,
-    color: '#eff6ff',
-  },
-  {
-    id: 7,
-    kode: 'PRD007',
-    nama: 'Isi Staples',
-    kategori: 'Alat Tulis',
-    hargaJual: 5000,
-    stok: 100,
-    icon: <Inventory2OutlinedIcon sx={{ fontSize: 48, color: '#0284c7' }} />,
-    color: '#f0f9ff',
-  },
-  {
-    id: 8,
-    kode: 'PRD008',
-    nama: 'Lakban Bening',
-    kategori: 'Perlengkapan Kantor',
-    hargaJual: 7000,
-    stok: 90,
-    icon: <Inventory2OutlinedIcon sx={{ fontSize: 48, color: '#ea580c' }} />,
-    color: '#fff7ed',
-  },
-  {
-    id: 9,
-    kode: 'PRD009',
-    nama: 'Spidol Permanent',
-    kategori: 'Alat Tulis',
-    hargaJual: 12000,
-    stok: 60,
-    icon: <CreateOutlinedIcon sx={{ fontSize: 48, color: '#0f172a' }} />,
-    color: '#f8fafc',
-  },
-  {
-    id: 10,
-    kode: 'PRD010',
-    nama: 'Map Plastik',
-    kategori: 'Alat Tulis',
-    hargaJual: 4000,
-    stok: 150,
-    icon: <FolderOutlinedIcon sx={{ fontSize: 48, color: '#9333ea' }} />,
-    color: '#faf5ff',
-  },
-  {
-    id: 11,
-    kode: 'PRD011',
-    nama: 'Kertas A4 70gsm',
-    kategori: 'Perlengkapan Kantor',
-    hargaJual: 55000,
-    stok: 40,
-    icon: <PrintOutlinedIcon sx={{ fontSize: 48, color: '#0284c7' }} />,
-    color: '#f0f9ff',
-  },
-  {
-    id: 12,
-    kode: 'PRD012',
-    nama: 'Gunting',
-    kategori: 'Alat Tulis',
-    hargaJual: 15000,
-    stok: 35,
-    icon: <ContentCutOutlinedIcon sx={{ fontSize: 48, color: '#475569' }} />,
-    color: '#f8fafc',
-  },
-];
+import { getStoredProducts, deductStockFromSale, fetchAndSyncProducts } from '../services/productStockService';
 
 const CATEGORIES = [
   'Semua',
@@ -173,7 +42,7 @@ const CATEGORIES = [
 ];
 
 const CashierPage = () => {
-  const [products, setProducts] = useState(DEFAULT_PRODUCTS);
+  const [products, setProducts] = useState(getStoredProducts);
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [search, setSearch] = useState('');
   const [note, setNote] = useState('');
@@ -188,7 +57,6 @@ const CashierPage = () => {
       price: 25000,
       quantity: 2,
       subtotal: 50000,
-      icon: <PrintOutlinedIcon sx={{ fontSize: 24, color: '#64748b' }} />,
     },
     {
       productId: 2,
@@ -197,7 +65,6 @@ const CashierPage = () => {
       price: 85000,
       quantity: 1,
       subtotal: 85000,
-      icon: <OpacityOutlinedIcon sx={{ fontSize: 24, color: '#0f172a' }} />,
     },
     {
       productId: 3,
@@ -206,7 +73,6 @@ const CashierPage = () => {
       price: 3000,
       quantity: 3,
       subtotal: 9000,
-      icon: <CreateOutlinedIcon sx={{ fontSize: 24, color: '#334155' }} />,
     },
     {
       productId: 4,
@@ -215,7 +81,6 @@ const CashierPage = () => {
       price: 7500,
       quantity: 1,
       subtotal: 7500,
-      icon: <MenuBookOutlinedIcon sx={{ fontSize: 24, color: '#2563eb' }} />,
     },
   ]);
 
@@ -227,30 +92,22 @@ const CashierPage = () => {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  // Load API products if available, fallback seamlessly
+  // Load & synchronize products across pages
   useEffect(() => {
-    const fetchApiProducts = async () => {
-      try {
-        const res = await api.get('/products?active=true');
-        if (res.data?.data?.items?.length > 0) {
-          // Merge API products or enrich default list
-          const apiItems = res.data.data.items.map(p => ({
-            id: p.id,
-            kode: p.kode,
-            nama: p.nama,
-            kategori: p.kategoriNama || 'Alat Tulis',
-            hargaJual: p.hargaJual,
-            stok: p.stok,
-            icon: <Inventory2OutlinedIcon sx={{ fontSize: 48, color: '#2563eb' }} />,
-            color: '#f8fafc',
-          }));
-          setProducts(apiItems);
-        }
-      } catch (err) {
-        // Keep DEFAULT_PRODUCTS
+    fetchAndSyncProducts().then(items => {
+      if (items && items.length > 0) {
+        setProducts(items);
+      }
+    });
+
+    const handleStockUpdate = (e) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        setProducts(e.detail);
       }
     };
-    fetchApiProducts();
+
+    window.addEventListener('tokas_stock_updated', handleStockUpdate);
+    return () => window.removeEventListener('tokas_stock_updated', handleStockUpdate);
   }, []);
 
   // Filter products by category and search keyword
@@ -297,7 +154,6 @@ const CashierPage = () => {
           price: product.hargaJual,
           quantity: 1,
           subtotal: product.hargaJual,
-          icon: product.icon || <Inventory2OutlinedIcon sx={{ fontSize: 24, color: '#64748b' }} />,
         },
       ];
     });
@@ -361,6 +217,10 @@ const CashierPage = () => {
       return;
     }
 
+    // Deduct stock in real-time across the app
+    const updatedProducts = deductStockFromSale(cart);
+    setProducts(updatedProducts);
+
     try {
       const payload = {
         items: cart.map(item => ({
@@ -369,8 +229,8 @@ const CashierPage = () => {
           price: item.price,
         })),
         paymentAmount: paymentMethod === 'Tunai' ? cashNum : totalPayment,
-        paymentMethod: paymentMethod === 'Tunai' ? 'Tunai' : 'Non Tunai',
-        note: note,
+        paymentMethod: paymentMethod === 'Tunai' ? 'cash' : 'qris',
+        notes: note,
       };
 
       const res = await api.post('/transactions', payload);
@@ -398,7 +258,7 @@ const CashierPage = () => {
     setReceiptDialog(true);
     setCart([]);
     setNote('');
-    enqueueSnackbar('Transaksi berhasil diselesaikan!', { variant: 'success' });
+    enqueueSnackbar('Transaksi berhasil diselesaikan! Stok produk otomatis berkurang.', { variant: 'success' });
   };
 
   return (
@@ -454,7 +314,7 @@ const CashierPage = () => {
         >
           <SearchIcon sx={{ color: '#94a3b8', fontSize: 20, mr: 1.25 }} />
           <InputBase
-            placeholder="Cari produk (kode, nama, atau barcode)..."
+            placeholder="Cari produk (nama atau barcode)..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             sx={{
@@ -574,36 +434,43 @@ const CashierPage = () => {
                   sx={{
                     p: 2,
                     borderRadius: '16px',
-                    border: isFirst ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                    border: isFirst ? '1.5px solid #2563eb' : '1px solid #eef2f6',
                     bgcolor: '#ffffff',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                    boxShadow: isFirst ? '0 4px 14px rgba(37, 99, 235, 0.08)' : '0 1px 3px rgba(0,0,0,0.02)',
                     cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    minHeight: 195,
-                    transition: 'all 0.15s ease-in-out',
+                    minHeight: 205,
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
                       borderColor: '#2563eb',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 12px rgba(37, 99, 235, 0.08)',
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 8px 20px -4px rgba(37, 99, 235, 0.12)',
+                      '& .product-thumb-svg': {
+                        transform: 'scale(1.08)',
+                      },
                     },
                   }}
                 >
                   {/* Thumbnail Container */}
                   <Box
                     sx={{
-                      height: 90,
+                      height: 100,
                       width: '100%',
-                      borderRadius: '10px',
+                      borderRadius: '12px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      bgcolor: p.color || '#f8fafc',
+                      bgcolor: '#f8fafc',
                       mb: 1.5,
+                      overflow: 'hidden',
+                      transition: 'background 0.2s',
                     }}
                   >
-                    {p.icon}
+                    <Box className="product-thumb-svg" sx={{ transition: 'transform 0.25s ease' }}>
+                      <ProductVisual code={p.kode} name={p.nama} size={72} />
+                    </Box>
                   </Box>
 
                   {/* Product Details */}
@@ -613,10 +480,10 @@ const CashierPage = () => {
                       sx={{
                         fontWeight: 700,
                         color: '#0f172a',
-                        fontSize: '0.84rem',
-                        lineHeight: 1.25,
+                        fontSize: '0.85rem',
+                        lineHeight: 1.3,
                         mb: 0.5,
-                        height: 34,
+                        height: 36,
                         overflow: 'hidden',
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
@@ -631,7 +498,7 @@ const CashierPage = () => {
                       sx={{
                         fontWeight: 800,
                         color: '#2563eb',
-                        fontSize: '0.925rem',
+                        fontSize: '0.95rem',
                         mb: 1,
                       }}
                     >
@@ -649,31 +516,38 @@ const CashierPage = () => {
                       <Typography
                         variant="caption"
                         sx={{
-                          color: isFirst ? '#2563eb' : '#64748b',
-                          fontSize: '0.75rem',
-                          fontWeight: 500,
+                          color: p.stok <= 0 ? '#ef4444' : (isFirst ? '#2563eb' : '#64748b'),
+                          fontSize: '0.78rem',
+                          fontWeight: p.stok <= 0 ? 700 : 600,
                         }}
                       >
-                        Stok: {p.stok}
+                        {p.stok <= 0 ? 'Habis' : `Stok: ${p.stok}`}
                       </Typography>
 
                       <Box
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (p.stok > 0) addToCart(p);
+                        }}
                         sx={{
                           width: 28,
                           height: 28,
                           borderRadius: '50%',
-                          bgcolor: '#2563eb',
-                          color: '#ffffff',
+                          bgcolor: p.stok <= 0 ? '#e2e8f0' : '#2563eb',
+                          color: p.stok <= 0 ? '#94a3b8' : '#ffffff',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '1rem',
-                          fontWeight: 700,
-                          transition: 'background 0.15s',
-                          '&:hover': { bgcolor: '#1d4ed8' },
+                          boxShadow: p.stok <= 0 ? 'none' : '0 2px 6px rgba(37, 99, 235, 0.35)',
+                          transition: 'all 0.15s ease',
+                          cursor: p.stok <= 0 ? 'not-allowed' : 'pointer',
+                          '&:hover': {
+                            bgcolor: p.stok <= 0 ? '#e2e8f0' : '#1d4ed8',
+                            transform: p.stok <= 0 ? 'none' : 'scale(1.12)',
+                          },
                         }}
                       >
-                        +
+                        <AddIcon sx={{ fontSize: 16 }} />
                       </Box>
                     </Box>
                   </Box>
@@ -793,7 +667,7 @@ const CashierPage = () => {
                         flexShrink: 0,
                       }}
                     >
-                      {item.icon}
+                      <ProductVisual code={item.code} name={item.name} size={28} />
                     </Box>
                     <Box sx={{ minWidth: 0 }}>
                       <Typography
@@ -807,9 +681,6 @@ const CashierPage = () => {
                         }}
                       >
                         {item.name}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.7rem' }}>
-                        Kode: {item.code}
                       </Typography>
                     </Box>
                   </Box>
