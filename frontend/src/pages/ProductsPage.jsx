@@ -19,7 +19,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
 import ProductVisual from '../components/common/ProductVisual';
-import { getStoredProducts, saveStoredProducts, fetchAndSyncProducts } from '../services/productStockService';
+import { getStoredProducts, fetchAndSyncProducts } from '../services/productStockService';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState(getStoredProducts);
@@ -97,42 +97,54 @@ const ProductsPage = () => {
   };
 
   const handleSubmit = async () => {
-    let updated;
-    if (formData.id) {
-      updated = products.map(p => p.id === formData.id ? { ...formData } : p);
-    } else {
-      const newProduct = {
-        ...formData,
-        id: Date.now(),
-        kode: formData.kode || `PRD${String(products.length + 1).padStart(3, '0')}`,
-      };
-      updated = [newProduct, ...products];
-    }
-    setProducts(updated);
-    saveStoredProducts(updated);
     handleClose();
 
+    const catName = formData.kategori || 'Alat Tulis';
+    const catMap = {
+      'Perlengkapan Kantor': 6,
+      'Elektronik': 7,
+      'Alat Tulis': 8,
+      'Kebersihan': 9,
+      'Makanan & Minuman': 10,
+      'Makanan': 1,
+      'Minuman': 2,
+    };
+    const catId = catMap[catName] || 8;
+
+    const backendPayload = {
+      categoryId: catId,
+      code: formData.kode || `PRD${String(Date.now()).slice(-4)}`,
+      name: formData.nama,
+      purchasePrice: parseFloat(formData.hargaBeli) || 0,
+      sellingPrice: parseFloat(formData.hargaJual) || 0,
+      stock: parseInt(formData.stok) || 0,
+      minimumStock: 10,
+      unit: 'pcs',
+    };
+
     try {
-      if (formData.id) {
-        await api.put(`/products/${formData.id}`, formData);
+      if (formData.id && typeof formData.id === 'number' && formData.id < 1000000) {
+        await api.put(`/products/${formData.id}`, backendPayload);
       } else {
-        await api.post('/products', formData);
+        await api.post('/products', backendPayload);
       }
     } catch (error) {
-      // Offline fallback already synced to local storage & broadcasted
+      console.warn("Backend save error:", error);
     }
+
+    const fresh = await fetchAndSyncProducts();
+    if (fresh) setProducts(fresh);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
-      const updated = products.filter(p => p.id !== id);
-      setProducts(updated);
-      saveStoredProducts(updated);
+    if (window.confirm('Apakah Anda yakin ingin menonaktifkan produk ini?')) {
       try {
-        await api.delete(`/products/${id}`);
+        await api.patch(`/products/${id}/status`, { isActive: false });
       } catch (error) {
-        // Offline fallback already synced to local storage & broadcasted
+        console.warn("Backend status update error:", error);
       }
+      const fresh = await fetchAndSyncProducts();
+      if (fresh) setProducts(fresh);
     }
   };
 

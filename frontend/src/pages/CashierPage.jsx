@@ -234,6 +234,11 @@ const CashierPage = () => {
       };
 
       const res = await api.post('/transactions', payload);
+      // Synchronize immediately with real database stock
+      const fresh = await fetchAndSyncProducts();
+      if (fresh && fresh.length > 0) {
+        setProducts(fresh);
+      }
       setCompletedTx(res.data?.data || {
         transactionNo: `TRX-${Date.now().toString().slice(-6)}`,
         total: totalPayment,
