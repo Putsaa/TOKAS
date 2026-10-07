@@ -23,6 +23,7 @@ import { getStoredProducts, fetchAndSyncProducts } from '../services/productStoc
 
 const ProductsPage = () => {
   const [products, setProducts] = useState(getStoredProducts);
+  const [categoryOptions, setCategoryOptions] = useState([]);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedKategori, setSelectedKategori] = useState('Semua');
@@ -38,8 +39,20 @@ const ProductsPage = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get('/categories');
+      if (res.data?.data) {
+        setCategoryOptions(res.data.data);
+      }
+    } catch (e) {
+      console.warn('Failed to load categories for products page', e);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
 
     const handleStockUpdate = (e) => {
       if (e.detail && Array.isArray(e.detail)) {
@@ -62,9 +75,11 @@ const ProductsPage = () => {
 
   // Categories list
   const categoriesList = useMemo(() => {
-    const set = new Set(products.map(p => p.kategori).filter(Boolean));
+    const fromCategories = categoryOptions.map(c => c.name);
+    const fromProducts = products.map(p => p.kategori).filter(Boolean);
+    const set = new Set([...fromCategories, ...fromProducts]);
     return ['Semua', ...Array.from(set)];
-  }, [products]);
+  }, [categoryOptions, products]);
 
   // Filtered Products
   const filteredProducts = useMemo(() => {

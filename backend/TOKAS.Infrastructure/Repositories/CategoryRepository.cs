@@ -51,6 +51,8 @@ public class CategoryRepository : ICategoryRepository
             SET name = @Name, is_active = @IsActive, updated_at = GETDATE()
             WHERE id = @Id";
         await connection.ExecuteAsync(sql, category);
+    }
+
     public async Task<Dictionary<int, int>> GetProductCountsAsync()
     {
         using var connection = _db.CreateConnection();
