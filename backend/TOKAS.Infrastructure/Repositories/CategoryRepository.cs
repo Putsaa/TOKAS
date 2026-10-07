@@ -51,5 +51,25 @@ public class CategoryRepository : ICategoryRepository
             SET name = @Name, is_active = @IsActive, updated_at = GETDATE()
             WHERE id = @Id";
         await connection.ExecuteAsync(sql, category);
+    public async Task<Dictionary<int, int>> GetProductCountsAsync()
+    {
+        using var connection = _db.CreateConnection();
+        const string sql = "SELECT category_id, COUNT(*) as cnt FROM products GROUP BY category_id";
+        var rows = await connection.QueryAsync<(int category_id, int cnt)>(sql);
+        return rows.ToDictionary(r => r.category_id, r => r.cnt);
+    }
+
+    public async Task<int> GetProductCountByCategoryIdAsync(int id)
+    {
+        using var connection = _db.CreateConnection();
+        return await connection.ExecuteScalarAsync<int>(
+            "SELECT COUNT(1) FROM products WHERE category_id = @Id", new { Id = id });
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        using var connection = _db.CreateConnection();
+        var rows = await connection.ExecuteAsync("DELETE FROM categories WHERE id = @Id", new { Id = id });
+        return rows > 0;
     }
 }
