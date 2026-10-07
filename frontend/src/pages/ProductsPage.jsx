@@ -114,17 +114,16 @@ const ProductsPage = () => {
   const handleSubmit = async () => {
     handleClose();
 
-    const catName = formData.kategori || 'Alat Tulis';
-    const catMap = {
-      'Perlengkapan Kantor': 6,
-      'Elektronik': 7,
-      'Alat Tulis': 8,
-      'Kebersihan': 9,
-      'Makanan & Minuman': 10,
-      'Makanan': 1,
-      'Minuman': 2,
-    };
-    const catId = catMap[catName] || 8;
+    const catName = formData.kategori || (categoryOptions[0]?.name || 'Alat Tulis');
+    const matchedCategory = categoryOptions.find(
+      c => c.name.toLowerCase() === catName.toLowerCase()
+    );
+    const catId = matchedCategory ? matchedCategory.id : (
+      catName === 'Perlengkapan Kantor' ? 6 :
+      catName === 'Elektronik' ? 7 :
+      catName === 'Kebersihan' ? 9 :
+      catName === 'Makanan & Minuman' ? 10 : 8
+    );
 
     const backendPayload = {
       categoryId: catId,
@@ -720,14 +719,24 @@ const ProductsPage = () => {
             />
 
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-              <TextField
-                label="Kategori"
-                name="kategori"
-                value={formData.kategori}
-                onChange={handleChange}
-                size="small"
-                fullWidth
-              />
+              <FormControl size="small" fullWidth>
+                <InputLabel>Kategori</InputLabel>
+                <Select
+                  name="kategori"
+                  value={formData.kategori || ''}
+                  label="Kategori"
+                  onChange={handleChange}
+                >
+                  {categoryOptions.map((c) => (
+                    <MenuItem key={c.id} value={c.name}>
+                      {c.name}
+                    </MenuItem>
+                  ))}
+                  {formData.kategori && !categoryOptions.some(c => c.name === formData.kategori) && (
+                    <MenuItem value={formData.kategori}>{formData.kategori}</MenuItem>
+                  )}
+                </Select>
+              </FormControl>
               <FormControl size="small" fullWidth>
                 <InputLabel>Status</InputLabel>
                 <Select name="status" value={formData.status} label="Status" onChange={handleChange}>
