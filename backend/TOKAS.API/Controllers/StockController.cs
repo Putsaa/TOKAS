@@ -9,7 +9,7 @@ namespace TOKAS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Owner")]
+[Authorize]
 public class StockController : ControllerBase
 {
     private readonly IStockService _stockService;
@@ -19,18 +19,29 @@ public class StockController : ControllerBase
         _stockService = stockService;
     }
 
+    private int GetCurrentUserId()
+    {
+        var val = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? User.FindFirst("nameid")?.Value
+            ?? User.FindFirst("sub")?.Value
+            ?? "1";
+        return int.TryParse(val, out var id) ? id : 1;
+    }
+
     [HttpPost("in")]
+    [Authorize(Roles = "Owner,Admin,admin,owner")]
     public async Task<ActionResult<ApiResponse>> StockIn([FromBody] StockInRequest request)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        var userId = GetCurrentUserId();
         await _stockService.StockInAsync(request, userId);
         return Ok(ApiResponse.Ok("Stok berhasil ditambahkan"));
     }
 
     [HttpPost("adjustment")]
+    [Authorize(Roles = "Owner,Admin,admin,owner")]
     public async Task<ActionResult<ApiResponse>> StockAdjustment([FromBody] StockAdjustmentRequest request)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+        var userId = GetCurrentUserId();
         await _stockService.StockAdjustmentAsync(request, userId);
         return Ok(ApiResponse.Ok("Penyesuaian stok berhasil"));
     }
