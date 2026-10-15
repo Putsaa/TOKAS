@@ -1,15 +1,8 @@
 import React from 'react';
-import { Chip } from '@mui/material';
+import StatusBadge from './StatusBadge';
 
-const StatusChip = ({ status }) => {
-  const isAktif = status === 'Aktif' || status === true || status === 1;
-  return (
-    <Chip 
-      label={isAktif ? 'Aktif' : 'Tidak Aktif'} 
-      color={isAktif ? 'success' : 'error'} 
-      size="small" 
-    />
-  );
+const StatusChip = ({ status, ...props }) => {
+  return <StatusBadge status={status} {...props} />;
 };
 
 export default StatusChip;
