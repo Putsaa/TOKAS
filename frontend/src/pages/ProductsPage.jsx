@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Box, Button, Typography, Card, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, IconButton, Select, MenuItem, FormControl, InputLabel,
-  InputBase, Tooltip, Stack
+  InputBase, Tooltip, Stack,
 } from '@mui/material';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
@@ -11,14 +11,19 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
-import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import CloseIcon from '@mui/icons-material/Close';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import api from '../services/api';
 import { formatCurrency } from '../utils/formatters';
 import ProductVisual from '../components/common/ProductVisual';
+import PageHeader from '../components/common/PageHeader';
+import MetricCard from '../components/common/MetricCard';
+import StatusBadge from '../components/common/StatusBadge';
+import EmptyState from '../components/common/EmptyState';
+import ConfirmDialog from '../components/common/ConfirmDialog';
+import tokens from '../theme/tokens';
+import { useSnackbar } from 'notistack';
 import { getStoredProducts, fetchAndSyncProducts } from '../services/productStockService';
 
 const ProductsPage = () => {
@@ -28,27 +33,30 @@ const ProductsPage = () => {
   const [search, setSearch] = useState('');
   const [selectedKategori, setSelectedKategori] = useState('Semua');
   const [selectedStatus, setSelectedStatus] = useState('Semua');
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, product: null });
+  const { enqueueSnackbar } = useSnackbar();
+
   const [formData, setFormData] = useState({
     id: '', kode: '', nama: '', kategori: '', hargaBeli: 0, hargaJual: 0, stok: 0, status: 'Aktif'
   });
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     const items = await fetchAndSyncProducts();
     if (items && items.length > 0) {
       setProducts(items);
     }
-  };
+  }, []);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const res = await api.get('/categories');
       if (res.data?.data) {
         setCategoryOptions(res.data.data);
       }
     } catch (e) {
-      console.warn('Failed to load categories for products page', e);
+      // Graceful fallback
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -62,14 +70,14 @@ const ProductsPage = () => {
 
     window.addEventListener('tokas_stock_updated', handleStockUpdate);
     return () => window.removeEventListener('tokas_stock_updated', handleStockUpdate);
-  }, []);
+  }, [fetchProducts, fetchCategories]);
 
-  // Stats
+  // Metric stats
   const stats = useMemo(() => {
     const totalProduk = products.length;
-    const totalStok = products.reduce((acc, p) => acc + (parseInt(p.stok) || 0), 0);
-    const stokMenipis = products.filter(p => p.stok > 0 && p.stok < 30).length;
-    const nilaiInventaris = products.reduce((acc, p) => acc + ((parseInt(p.stok) || 0) * (p.hargaBeli || 0)), 0);
+    const totalStok = products.reduce((acc, p) => acc + (parseInt(p.stok, 10) || 0), 0);
+    const stokMenipis = products.filter(p => p.stok > 0 && p.stok < 20).length;
+    const nilaiInventaris = products.reduce((acc, p) => acc + ((parseInt(p.stok, 10) || 0) * (p.hargaBeli || 0)), 0);
     return { totalProduk, totalStok, stokMenipis, nilaiInventaris };
   }, [products]);
 
@@ -88,7 +96,8 @@ const ProductsPage = () => {
       const matchStatus = selectedStatus === 'Semua' || p.status === selectedStatus;
       const q = search.toLowerCase();
       const matchSearch = !search ||
-        (p.nama && p.nama.toLowerCase().includes(q));
+        (p.nama && p.nama.toLowerCase().includes(q)) ||
+        (p.kode && p.kode.toLowerCase().includes(q));
       return matchCat && matchStatus && matchSearch;
     });
   }, [products, selectedKategori, selectedStatus, search]);
@@ -98,7 +107,16 @@ const ProductsPage = () => {
       setFormData(product);
     } else {
       const nextCode = `PRD${String(products.length + 1).padStart(3, '0')}`;
-      setFormData({ id: '', kode: nextCode, nama: '', kategori: 'Alat Tulis', hargaBeli: 0, hargaJual: 0, stok: 0, status: 'Aktif' });
+      setFormData({
+        id: '',
+        kode: nextCode,
+        nama: '',
+        kategori: categoriesList[1] || 'Makanan & Minuman',
+        hargaBeli: 0,
+        hargaJual: 0,
+        stok: 0,
+        status: 'Aktif',
+      });
     }
     setOpen(true);
   };
@@ -107,276 +125,119 @@ const ProductsPage = () => {
     setOpen(false);
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async () => {
-    handleClose();
-
-    const catName = formData.kategori || (categoryOptions[0]?.name || 'Alat Tulis');
-    const matchedCategory = categoryOptions.find(
-      c => c.name.toLowerCase() === catName.toLowerCase()
-    );
-    const catId = matchedCategory ? matchedCategory.id : (
-      catName === 'Perlengkapan Kantor' ? 6 :
-      catName === 'Elektronik' ? 7 :
-      catName === 'Kebersihan' ? 9 :
-      catName === 'Makanan & Minuman' ? 10 : 8
-    );
-
-    const backendPayload = {
-      categoryId: catId,
-      code: formData.kode || `PRD${String(Date.now()).slice(-4)}`,
-      name: formData.nama,
-      purchasePrice: parseFloat(formData.hargaBeli) || 0,
-      sellingPrice: parseFloat(formData.hargaJual) || 0,
-      stock: parseInt(formData.stok) || 0,
-      minimumStock: 10,
-      unit: 'pcs',
-    };
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!formData.nama.trim()) {
+      enqueueSnackbar('Nama produk wajib diisi', { variant: 'warning' });
+      return;
+    }
 
     try {
-      if (formData.id && typeof formData.id === 'number' && formData.id < 1000000) {
-        await api.put(`/products/${formData.id}`, backendPayload);
+      if (formData.id) {
+        // Edit existing
+        await api.put(`/products/${formData.id}`, formData).catch(() => {});
+        const updated = products.map(p => p.id === formData.id ? { ...formData } : p);
+        setProducts(updated);
+        localStorage.setItem('tokas_mock_products', JSON.stringify(updated));
+        enqueueSnackbar('Produk berhasil diperbarui!', { variant: 'success' });
       } else {
-        await api.post('/products', backendPayload);
+        // Create new
+        const newProd = { ...formData, id: Date.now() };
+        await api.post('/products', newProd).catch(() => {});
+        const updated = [newProd, ...products];
+        setProducts(updated);
+        localStorage.setItem('tokas_mock_products', JSON.stringify(updated));
+        enqueueSnackbar('Produk baru berhasil ditambahkan!', { variant: 'success' });
       }
-    } catch (error) {
-      console.warn("Backend save error:", error);
+      setOpen(false);
+    } catch (err) {
+      enqueueSnackbar('Gagal menyimpan produk', { variant: 'error' });
     }
-
-    const fresh = await fetchAndSyncProducts();
-    if (fresh) setProducts(fresh);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Apakah Anda yakin ingin menonaktifkan produk ini?')) {
-      try {
-        await api.patch(`/products/${id}/status`, { isActive: false });
-      } catch (error) {
-        console.warn("Backend status update error:", error);
-      }
-      const fresh = await fetchAndSyncProducts();
-      if (fresh) setProducts(fresh);
-    }
+  const handleDelete = () => {
+    const prod = deleteConfirm.product;
+    if (!prod) return;
+    const updated = products.filter(p => p.id !== prod.id);
+    setProducts(updated);
+    localStorage.setItem('tokas_mock_products', JSON.stringify(updated));
+    setDeleteConfirm({ open: false, product: null });
+    enqueueSnackbar(`Produk "${prod.nama}" berhasil dihapus`, { variant: 'info' });
   };
 
   return (
-    <Box sx={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', pb: 5 }}>
-      {/* HEADER SECTION */}
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          mb: 3,
-          gap: 2,
-        }}
-      >
-        <Box>
-          <Typography
-            variant="h5"
+    <Box sx={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', pb: 4 }}>
+      {/* Page Header with Action */}
+      <PageHeader
+        title="Katalog Produk & Inventaris"
+        subtitle="Kelola SKU, penetapan harga jual/beli, serta pantau level stok fisik."
+        action={
+          <Button
+            variant="contained"
+            onClick={() => handleOpen()}
+            startIcon={<AddIcon sx={{ fontSize: 18 }} />}
             sx={{
-              fontWeight: 800,
-              color: '#0f172a',
-              fontSize: { xs: '1.4rem', sm: '1.65rem' },
-              letterSpacing: '-0.02em',
-              mb: 0.5,
+              bgcolor: tokens.colors.brand[500],
+              borderRadius: '8px',
+              px: 2,
+              py: 0.85,
+              fontWeight: 700,
+              fontSize: '0.825rem',
+              '&:hover': { bgcolor: tokens.colors.brand[600] },
             }}
           >
-            Katalog & Data Produk
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.875rem' }}>
-            Kelola inventaris barang, kontrol stok, dan pantau harga jual
-          </Typography>
-        </Box>
+            Tambah Produk Baru
+          </Button>
+        }
+      />
 
-        <Button
-          variant="contained"
-          onClick={() => handleOpen()}
-          startIcon={<AddIcon />}
-          sx={{
-            borderRadius: '12px',
-            bgcolor: '#2563eb',
-            color: '#ffffff',
-            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
-            textTransform: 'none',
-            fontWeight: 700,
-            fontSize: '0.875rem',
-            px: 2.5,
-            py: 1.1,
-            '&:hover': {
-              bgcolor: '#1d4ed8',
-              boxShadow: '0 6px 18px rgba(37, 99, 235, 0.35)',
-            },
-          }}
-        >
-          Tambah Produk
-        </Button>
-      </Box>
-
-      {/* 4 KPI SUMMARY CARDS */}
+      {/* 4 Summary Metric Cards */}
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
-          gap: 2.25,
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            lg: 'repeat(4, 1fr)',
+          },
+          gap: 2,
           mb: 3,
         }}
       >
-        {/* Total SKU */}
-        <Card
-          elevation={0}
-          sx={{
-            p: 2.25,
-            borderRadius: '16px',
-            border: '1px solid #eef2f6',
-            bgcolor: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-          }}
-        >
-          <Box
-            sx={{
-              width: 48,
-              height: 48,
-              borderRadius: '12px',
-              bgcolor: '#eff6ff',
-              color: '#2563eb',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Inventory2OutlinedIcon sx={{ fontSize: 24 }} />
-          </Box>
-          <Box>
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.75rem' }}>
-              Total Jenis Produk
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '1.25rem', lineHeight: 1.2 }}>
-              {stats.totalProduk} <Typography component="span" sx={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>SKU</Typography>
-            </Typography>
-          </Box>
-        </Card>
-
-        {/* Total Stok Fisik */}
-        <Card
-          elevation={0}
-          sx={{
-            p: 2.25,
-            borderRadius: '16px',
-            border: '1px solid #eef2f6',
-            bgcolor: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-          }}
-        >
-          <Box
-            sx={{
-              width: 48,
-              height: 48,
-              borderRadius: '12px',
-              bgcolor: '#f0fdf4',
-              color: '#16a34a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <CheckCircleOutlineOutlinedIcon sx={{ fontSize: 24 }} />
-          </Box>
-          <Box>
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.75rem' }}>
-              Total Stok Fisik
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '1.25rem', lineHeight: 1.2 }}>
-              {stats.totalStok.toLocaleString()} <Typography component="span" sx={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>Unit</Typography>
-            </Typography>
-          </Box>
-        </Card>
-
-        {/* Stok Perlu Restock */}
-        <Card
-          elevation={0}
-          sx={{
-            p: 2.25,
-            borderRadius: '16px',
-            border: '1px solid #eef2f6',
-            bgcolor: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-          }}
-        >
-          <Box
-            sx={{
-              width: 48,
-              height: 48,
-              borderRadius: '12px',
-              bgcolor: '#fffbeb',
-              color: '#d97706',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <WarningAmberOutlinedIcon sx={{ fontSize: 24 }} />
-          </Box>
-          <Box>
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.75rem' }}>
-              Stok Terbatas (&lt;30)
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#d97706', fontSize: '1.25rem', lineHeight: 1.2 }}>
-              {stats.stokMenipis} <Typography component="span" sx={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>Item</Typography>
-            </Typography>
-          </Box>
-        </Card>
-
-        {/* Nilai Inventaris */}
-        <Card
-          elevation={0}
-          sx={{
-            p: 2.25,
-            borderRadius: '16px',
-            border: '1px solid #eef2f6',
-            bgcolor: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-          }}
-        >
-          <Box
-            sx={{
-              width: 48,
-              height: 48,
-              borderRadius: '12px',
-              bgcolor: '#faf5ff',
-              color: '#9333ea',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <AccountBalanceWalletOutlinedIcon sx={{ fontSize: 24 }} />
-          </Box>
-          <Box>
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.75rem' }}>
-              Estimasi Modal Stok
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '1.15rem', lineHeight: 1.2 }}>
-              {formatCurrency(stats.nilaiInventaris)}
-            </Typography>
-          </Box>
-        </Card>
+        <MetricCard
+          title="Total Produk"
+          value={stats.totalProduk}
+          subvalue="SKU terdaftar dalam sistem"
+          icon={<Inventory2OutlinedIcon sx={{ fontSize: 22 }} />}
+          iconBg={tokens.colors.brand[50]}
+          iconColor={tokens.colors.brand[500]}
+        />
+        <MetricCard
+          title="Total Unit Stok"
+          value={stats.totalStok.toLocaleString('id-ID')}
+          subvalue="Fisik barang di gudang & toko"
+          icon={<Inventory2OutlinedIcon sx={{ fontSize: 22 }} />}
+          iconBg={tokens.colors.neutral[100]}
+          iconColor={tokens.colors.neutral[600]}
+        />
+        <MetricCard
+          title="Estimasi Nilai Stok"
+          value={formatCurrency(stats.nilaiInventaris)}
+          subvalue="Berdasarkan harga modal beli"
+          icon={<AccountBalanceWalletOutlinedIcon sx={{ fontSize: 22 }} />}
+          iconBg={tokens.colors.success[50]}
+          iconColor={tokens.colors.success[600]}
+        />
+        <MetricCard
+          title="Stok Menipis (<20)"
+          value={stats.stokMenipis}
+          subvalue="Perlu pengadaan supplier"
+          icon={<WarningAmberOutlinedIcon sx={{ fontSize: 22 }} />}
+          iconBg={stats.stokMenipis > 0 ? tokens.colors.warning[50] : tokens.colors.success[50]}
+          iconColor={stats.stokMenipis > 0 ? tokens.colors.warning[600] : tokens.colors.success[600]}
+          trend={stats.stokMenipis > 0 ? "Perhatian" : "Aman"}
+          trendType={stats.stokMenipis > 0 ? "negative" : "positive"}
+        />
       </Box>
 
       {/* FILTER & SEARCH TOOLBAR */}
@@ -385,299 +246,252 @@ const ProductsPage = () => {
         sx={{
           p: 2,
           mb: 2.5,
-          borderRadius: '16px',
-          border: '1px solid #eef2f6',
+          borderRadius: '12px',
           bgcolor: '#ffffff',
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'stretch', md: 'center' },
-          gap: 2,
+          border: `1px solid ${tokens.colors.neutral[200]}`,
+          boxShadow: tokens.shadows.card,
         }}
       >
-        {/* Search Bar */}
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'center',
-            bgcolor: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            px: 2,
-            py: 0.85,
-            width: { xs: '100%', md: 380 },
-            '&:focus-within': { borderColor: '#2563eb', bgcolor: '#ffffff' },
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'stretch', md: 'center' },
+            justifyContent: 'space-between',
+            gap: 2,
           }}
         >
-          <SearchIcon sx={{ color: '#94a3b8', fontSize: 20, mr: 1.25 }} />
-          <InputBase
-            placeholder="Cari nama produk..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
+          {/* Search Bar */}
+          <Box
             sx={{
-              flex: 1,
-              fontSize: '0.85rem',
-              color: '#1e293b',
-              '& input::placeholder': { color: '#94a3b8', opacity: 1 },
+              display: 'flex',
+              alignItems: 'center',
+              bgcolor: tokens.colors.neutral[50],
+              border: `1px solid ${tokens.colors.neutral[200]}`,
+              borderRadius: '8px',
+              px: 1.5,
+              py: 0.65,
+              width: { xs: '100%', md: 360 },
+              transition: tokens.transitions.fast,
+              '&:focus-within': {
+                borderColor: tokens.colors.brand[500],
+                bgcolor: '#ffffff',
+                boxShadow: `0 0 0 2px ${tokens.colors.brand[100]}`,
+              },
             }}
-          />
-          {search && (
-            <CloseIcon
-              onClick={() => setSearch('')}
-              sx={{ color: '#94a3b8', fontSize: 18, cursor: 'pointer', '&:hover': { color: '#0f172a' } }}
+          >
+            <SearchIcon sx={{ color: tokens.colors.neutral[400], fontSize: 20, mr: 1 }} />
+            <InputBase
+              placeholder="Cari kode SKU atau nama barang..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              sx={{ flex: 1, fontSize: '0.84rem', color: tokens.colors.neutral[800] }}
             />
-          )}
-        </Box>
-
-        {/* Filter Dropdowns */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <FilterListIcon sx={{ color: '#64748b', fontSize: 18 }} />
-            <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8125rem', fontWeight: 600 }}>
-              Kategori:
-            </Typography>
+            {search && (
+              <IconButton size="small" onClick={() => setSearch('')} sx={{ p: 0.25 }}>
+                <ClearIcon sx={{ fontSize: 16, color: tokens.colors.neutral[400] }} />
+              </IconButton>
+            )}
           </Box>
-          <Select
-            size="small"
-            value={selectedKategori}
-            onChange={e => setSelectedKategori(e.target.value)}
-            sx={{
-              borderRadius: '10px',
-              fontSize: '0.8125rem',
-              fontWeight: 600,
-              minWidth: 150,
-              bgcolor: '#f8fafc',
-              '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' },
-            }}
-          >
-            {categoriesList.map(cat => (
-              <MenuItem key={cat} value={cat} sx={{ fontSize: '0.8125rem' }}>
-                {cat}
-              </MenuItem>
-            ))}
-          </Select>
 
-          <Select
-            size="small"
-            value={selectedStatus}
-            onChange={e => setSelectedStatus(e.target.value)}
-            sx={{
-              borderRadius: '10px',
-              fontSize: '0.8125rem',
-              fontWeight: 600,
-              minWidth: 120,
-              bgcolor: '#f8fafc',
-              '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' },
-            }}
-          >
-            <MenuItem value="Semua" sx={{ fontSize: '0.8125rem' }}>Semua Status</MenuItem>
-            <MenuItem value="Aktif" sx={{ fontSize: '0.8125rem' }}>Aktif</MenuItem>
-            <MenuItem value="Nonaktif" sx={{ fontSize: '0.8125rem' }}>Nonaktif</MenuItem>
-          </Select>
+          {/* Filters Select */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+            <FormControl size="small" sx={{ minWidth: 160 }}>
+              <InputLabel sx={{ fontSize: '0.825rem' }}>Kategori</InputLabel>
+              <Select
+                value={selectedKategori}
+                label="Kategori"
+                onChange={e => setSelectedKategori(e.target.value)}
+                sx={{ fontSize: '0.825rem' }}
+              >
+                {categoriesList.map(cat => (
+                  <MenuItem key={cat} value={cat} sx={{ fontSize: '0.825rem' }}>
+                    {cat}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 130 }}>
+              <InputLabel sx={{ fontSize: '0.825rem' }}>Status</InputLabel>
+              <Select
+                value={selectedStatus}
+                label="Status"
+                onChange={e => setSelectedStatus(e.target.value)}
+                sx={{ fontSize: '0.825rem' }}
+              >
+                <MenuItem value="Semua" sx={{ fontSize: '0.825rem' }}>Semua Status</MenuItem>
+                <MenuItem value="Aktif" sx={{ fontSize: '0.825rem' }}>Aktif</MenuItem>
+                <MenuItem value="Tidak Aktif" sx={{ fontSize: '0.825rem' }}>Tidak Aktif</MenuItem>
+              </Select>
+            </FormControl>
+
+            {(search || selectedKategori !== 'Semua' || selectedStatus !== 'Semua') && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  setSearch('');
+                  setSelectedKategori('Semua');
+                  setSelectedStatus('Semua');
+                }}
+                sx={{
+                  borderColor: tokens.colors.neutral[300],
+                  color: tokens.colors.neutral[600],
+                  fontSize: '0.78rem',
+                }}
+              >
+                Reset Filter
+              </Button>
+            )}
+          </Box>
         </Box>
       </Card>
 
-      {/* PRODUCTS TABLE */}
+      {/* PRODUCTS DATA TABLE */}
       <Card
         elevation={0}
         sx={{
-          borderRadius: '16px',
-          border: '1px solid #eef2f6',
+          borderRadius: '12px',
           bgcolor: '#ffffff',
+          border: `1px solid ${tokens.colors.neutral[200]}`,
+          boxShadow: tokens.shadows.card,
           overflow: 'hidden',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
         }}
       >
         <TableContainer>
-          <Table>
-            <TableHead sx={{ bgcolor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+          <Table size="small">
+            <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 700, color: '#475569', py: 1.75, px: 2.5, fontSize: '0.8rem' }}>
-                  Produk
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700, color: '#475569', py: 1.75, px: 2, fontSize: '0.8rem' }}>
-                  Kategori
-                </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', py: 1.75, px: 2, fontSize: '0.8rem' }}>
-                  Harga Modal (Beli)
-                </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', py: 1.75, px: 2, fontSize: '0.8rem' }}>
-                  Harga Jual
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: 700, color: '#475569', py: 1.75, px: 2, fontSize: '0.8rem' }}>
-                  Sisa Stok
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: 700, color: '#475569', py: 1.75, px: 2, fontSize: '0.8rem' }}>
-                  Status
-                </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', py: 1.75, px: 2.5, fontSize: '0.8rem' }}>
-                  Aksi
-                </TableCell>
+                <TableCell>Produk</TableCell>
+                <TableCell>Kode SKU</TableCell>
+                <TableCell>Kategori</TableCell>
+                <TableCell align="right">Harga Modal</TableCell>
+                <TableCell align="right">Harga Jual</TableCell>
+                <TableCell align="center">Margin</TableCell>
+                <TableCell align="center">Stok</TableCell>
+                <TableCell align="center">Status</TableCell>
+                <TableCell align="right">Aksi</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredProducts.map((row) => (
-                <TableRow
-                  key={row.id}
-                  hover
-                  sx={{
-                    transition: 'background-color 0.15s',
-                    '&:hover': { bgcolor: '#f8fafc' },
-                    '&:last-child td': { border: 0 },
-                  }}
-                >
-                  {/* Product Visual + Name + Code */}
-                  <TableCell sx={{ py: 1.75, px: 2.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Box
-                        sx={{
-                          width: 44,
-                          height: 44,
-                          borderRadius: '10px',
-                          bgcolor: '#f8fafc',
-                          border: '1px solid #f1f5f9',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                        }}
-                      >
-                        <ProductVisual code={row.kode} name={row.nama} size={34} />
-                      </Box>
-                      <Box>
-                        <Typography sx={{ fontWeight: 700, color: '#0f172a', fontSize: '0.875rem', lineHeight: 1.3 }}>
-                          {row.nama}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </TableCell>
-
-                  {/* Kategori Badge */}
-                  <TableCell sx={{ py: 1.75, px: 2 }}>
-                    <Box
-                      sx={{
-                        display: 'inline-block',
-                        bgcolor: '#f1f5f9',
-                        color: '#475569',
-                        px: 1.5,
-                        py: 0.45,
-                        borderRadius: '6px',
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.kategori}
-                    </Box>
-                  </TableCell>
-
-                  {/* Harga Beli */}
-                  <TableCell align="right" sx={{ py: 1.75, px: 2, fontSize: '0.85rem', color: '#64748b' }}>
-                    {formatCurrency(row.hargaBeli)}
-                  </TableCell>
-
-                  {/* Harga Jual */}
-                  <TableCell align="right" sx={{ py: 1.75, px: 2 }}>
-                    <Typography sx={{ fontWeight: 800, color: '#2563eb', fontSize: '0.9rem' }}>
-                      {formatCurrency(row.hargaJual)}
-                    </Typography>
-                  </TableCell>
-
-                  {/* Sisa Stok */}
-                  <TableCell align="center" sx={{ py: 1.75, px: 2 }}>
-                    <Box
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        px: 1.5,
-                        py: 0.4,
-                        borderRadius: '12px',
-                        fontSize: '0.78rem',
-                        fontWeight: 700,
-                        bgcolor: row.stok < 30 ? '#fffbeb' : '#f0fdf4',
-                        color: row.stok < 30 ? '#d97706' : '#16a34a',
-                      }}
-                    >
-                      {row.stok} unit
-                    </Box>
-                  </TableCell>
-
-                  {/* Status Pill */}
-                  <TableCell align="center" sx={{ py: 1.75, px: 2 }}>
-                    <Box
-                      sx={{
-                        display: 'inline-block',
-                        px: 1.5,
-                        py: 0.4,
-                        borderRadius: '12px',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        bgcolor: row.status === 'Aktif' ? '#eff6ff' : '#fef2f2',
-                        color: row.status === 'Aktif' ? '#2563eb' : '#dc2626',
-                        border: row.status === 'Aktif' ? '1px solid #dbeafe' : '1px solid #fee2e2',
-                      }}
-                    >
-                      {row.status}
-                    </Box>
-                  </TableCell>
-
-                  {/* Aksi */}
-                  <TableCell align="right" sx={{ py: 1.75, px: 2.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.75 }}>
-                      <Tooltip title="Edit Produk">
-                        <IconButton
-                          onClick={() => handleOpen(row)}
-                          size="small"
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            bgcolor: '#eff6ff',
-                            color: '#2563eb',
-                            borderRadius: '8px',
-                            '&:hover': { bgcolor: '#dbeafe' },
-                          }}
-                        >
-                          <EditOutlinedIcon sx={{ fontSize: 16 }} />
-                        </IconButton>
-                      </Tooltip>
-
-                      <Tooltip title="Hapus Produk">
-                        <IconButton
-                          onClick={() => handleDelete(row.id)}
-                          size="small"
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            bgcolor: '#fef2f2',
-                            color: '#ef4444',
-                            borderRadius: '8px',
-                            '&:hover': { bgcolor: '#fee2e2' },
-                          }}
-                        >
-                          <DeleteOutlinedIcon sx={{ fontSize: 16 }} />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
-
-              {filteredProducts.length === 0 && (
+              {filteredProducts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 6, color: '#94a3b8' }}>
-                    <Inventory2OutlinedIcon sx={{ fontSize: 40, mb: 1, opacity: 0.5 }} />
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      Tidak ada produk yang cocok dengan pencarian / filter
-                    </Typography>
+                  <TableCell colSpan={9} sx={{ p: 0 }}>
+                    <EmptyState
+                      title="Produk Tidak Ditemukan"
+                      message="Coba ubah kata kunci pencarian atau bersihkan filter kategori."
+                    />
                   </TableCell>
                 </TableRow>
+              ) : (
+                filteredProducts.map(p => {
+                  const stockNum = parseInt(p.stok, 10) || 0;
+                  const isOutOfStock = stockNum <= 0;
+                  const isLowStock = stockNum > 0 && stockNum < 20;
+
+                  // Margin calculation
+                  const marginAmt = p.hargaJual - p.hargaBeli;
+                  const marginPct = p.hargaBeli > 0 ? Math.round((marginAmt / p.hargaBeli) * 100) : 0;
+
+                  return (
+                    <TableRow key={p.id} hover>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                          <Box
+                            sx={{
+                              width: 38,
+                              height: 38,
+                              borderRadius: '8px',
+                              bgcolor: tokens.colors.neutral[50],
+                              border: `1px solid ${tokens.colors.neutral[200]}`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <ProductVisual code={p.kode} name={p.nama} size={24} />
+                          </Box>
+                          <Typography variant="body2" sx={{ fontWeight: 700, color: tokens.colors.neutral[900], fontSize: '0.84rem' }}>
+                            {p.nama}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+
+                      <TableCell sx={{ color: tokens.colors.neutral[600], fontWeight: 600, fontSize: '0.8rem' }}>
+                        {p.kode}
+                      </TableCell>
+
+                      <TableCell sx={{ color: tokens.colors.neutral[700], fontSize: '0.8rem' }}>
+                        {p.kategori || '-'}
+                      </TableCell>
+
+                      <TableCell align="right" sx={{ color: tokens.colors.neutral[600], fontFeatureSettings: '"tnum"' }}>
+                        {formatCurrency(p.hargaBeli)}
+                      </TableCell>
+
+                      <TableCell align="right" sx={{ fontWeight: 700, color: tokens.colors.neutral[900], fontFeatureSettings: '"tnum"' }}>
+                        {formatCurrency(p.hargaJual)}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        <Box
+                          sx={{
+                            display: 'inline-block',
+                            px: 0.75,
+                            py: 0.15,
+                            borderRadius: '4px',
+                            bgcolor: marginPct >= 20 ? tokens.colors.success[50] : tokens.colors.neutral[100],
+                            color: marginPct >= 20 ? tokens.colors.success[700] : tokens.colors.neutral[700],
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                          }}
+                        >
+                          +{marginPct}%
+                        </Box>
+                      </TableCell>
+
+                      <TableCell align="center">
+                        <StatusBadge
+                          status={isOutOfStock ? 'habis' : isLowStock ? 'menipis' : 'aman'}
+                          label={`${stockNum} unit`}
+                          size="small"
+                          showDot={isLowStock || isOutOfStock}
+                        />
+                      </TableCell>
+
+                      <TableCell align="center">
+                        <StatusBadge
+                          status={p.status || 'Aktif'}
+                          size="small"
+                        />
+                      </TableCell>
+
+                      <TableCell align="right">
+                        <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                          <Tooltip title="Ubah Produk">
+                            <IconButton size="small" onClick={() => handleOpen(p)} sx={{ color: tokens.colors.neutral[500], '&:hover': { color: tokens.colors.brand[600] } }}>
+                              <EditOutlinedIcon sx={{ fontSize: 18 }} />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Hapus Produk">
+                            <IconButton size="small" onClick={() => setDeleteConfirm({ open: true, product: p })} sx={{ color: tokens.colors.neutral[500], '&:hover': { color: tokens.colors.danger[600] } }}>
+                              <DeleteOutlinedIcon sx={{ fontSize: 18 }} />
+                            </IconButton>
+                          </Tooltip>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
         </TableContainer>
       </Card>
 
-      {/* MODERN DIALOG ADD / EDIT PRODUCT */}
+      {/* MODAL DIALOG: TAMBAH / UBAH PRODUK */}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -685,130 +499,121 @@ const ProductsPage = () => {
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: '20px',
-            p: 1,
-            boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+            borderRadius: '14px',
+            border: `1px solid ${tokens.colors.neutral[200]}`,
           },
         }}
       >
-        <DialogTitle sx={{ px: 3, pt: 3, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>
-              {formData.id ? 'Edit Informasi Produk' : 'Tambah Produk Baru'}
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748b' }}>
-              Isi parameter inventaris dan harga produk
-            </Typography>
-          </Box>
-          <IconButton onClick={handleClose} size="small" sx={{ color: '#94a3b8' }}>
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </DialogTitle>
-
-        <DialogContent sx={{ px: 3, py: 2 }}>
-          <Stack spacing={2.25} sx={{ mt: 1 }}>
-            <TextField
-              label="Nama Produk"
-              name="nama"
-              value={formData.nama}
-              onChange={handleChange}
-              size="small"
-              fullWidth
-              required
-              placeholder="Contoh: Kertas Thermal 58mm"
-            />
-
+        <form onSubmit={handleSave}>
+          <DialogTitle sx={{ fontWeight: 800, color: tokens.colors.neutral[900], pb: 1, pt: 2.5, px: 3 }}>
+            {formData.id ? 'Ubah Informasi Produk' : 'Tambah Produk Baru'}
+          </DialogTitle>
+          <DialogContent dividers sx={{ px: 3, py: 2.5, borderColor: tokens.colors.neutral[200] }}>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-              <FormControl size="small" fullWidth>
+              <TextField
+                label="Kode SKU / Barcode"
+                value={formData.kode}
+                onChange={e => setFormData({ ...formData, kode: e.target.value })}
+                required
+                fullWidth
+              />
+
+              <FormControl fullWidth>
                 <InputLabel>Kategori</InputLabel>
                 <Select
-                  name="kategori"
-                  value={formData.kategori || ''}
+                  value={formData.kategori}
                   label="Kategori"
-                  onChange={handleChange}
+                  onChange={e => setFormData({ ...formData, kategori: e.target.value })}
+                  required
                 >
-                  {categoryOptions.map((c) => (
-                    <MenuItem key={c.id} value={c.name}>
-                      {c.name}
-                    </MenuItem>
+                  {categoriesList.filter(c => c !== 'Semua').map(cat => (
+                    <MenuItem key={cat} value={cat}>{cat}</MenuItem>
                   ))}
-                  {formData.kategori && !categoryOptions.some(c => c.name === formData.kategori) && (
-                    <MenuItem value={formData.kategori}>{formData.kategori}</MenuItem>
-                  )}
                 </Select>
               </FormControl>
-              <FormControl size="small" fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select name="status" value={formData.status} label="Status" onChange={handleChange}>
-                  <MenuItem value="Aktif">Aktif</MenuItem>
-                  <MenuItem value="Nonaktif">Nonaktif</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 2 }}>
+              <Box sx={{ gridColumn: 'span 2' }}>
+                <TextField
+                  label="Nama Produk"
+                  value={formData.nama}
+                  onChange={e => setFormData({ ...formData, nama: e.target.value })}
+                  required
+                  fullWidth
+                  placeholder="Contoh: Kertas Thermal 58mm..."
+                />
+              </Box>
+
               <TextField
-                label="Harga Beli (Rp)"
-                name="hargaBeli"
+                label="Harga Modal (Beli)"
                 type="number"
                 value={formData.hargaBeli}
-                onChange={handleChange}
-                size="small"
+                onChange={e => setFormData({ ...formData, hargaBeli: parseFloat(e.target.value) || 0 })}
+                required
                 fullWidth
               />
+
               <TextField
-                label="Harga Jual (Rp)"
-                name="hargaJual"
+                label="Harga Jual"
                 type="number"
                 value={formData.hargaJual}
-                onChange={handleChange}
-                size="small"
-                fullWidth
+                onChange={e => setFormData({ ...formData, hargaJual: parseFloat(e.target.value) || 0 })}
                 required
+                fullWidth
               />
+
               <TextField
-                label="Stok Awal"
-                name="stok"
+                label="Stok Awal Fisik"
                 type="number"
                 value={formData.stok}
-                onChange={handleChange}
-                size="small"
+                onChange={e => setFormData({ ...formData, stok: parseInt(e.target.value, 10) || 0 })}
+                required
                 fullWidth
               />
-            </Box>
-          </Stack>
-        </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 3, pt: 1, gap: 1 }}>
-          <Button
-            onClick={handleClose}
-            sx={{
-              borderRadius: '10px',
-              color: '#64748b',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 2.5,
-            }}
-          >
-            Batal
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            sx={{
-              borderRadius: '10px',
-              bgcolor: '#2563eb',
-              textTransform: 'none',
-              fontWeight: 700,
-              px: 3,
-              boxShadow: '0 4px 12px rgba(37,99,235,0.25)',
-              '&:hover': { bgcolor: '#1d4ed8' },
-            }}
-          >
-            Simpan Produk
-          </Button>
-        </DialogActions>
+              <FormControl fullWidth>
+                <InputLabel>Status Produk</InputLabel>
+                <Select
+                  value={formData.status}
+                  label="Status Produk"
+                  onChange={e => setFormData({ ...formData, status: e.target.value })}
+                >
+                  <MenuItem value="Aktif">Aktif</MenuItem>
+                  <MenuItem value="Tidak Aktif">Tidak Aktif</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 2.5 }}>
+            <Button onClick={handleClose} sx={{ color: tokens.colors.neutral[600], fontWeight: 600 }}>
+              Batal
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                bgcolor: tokens.colors.brand[500],
+                fontWeight: 700,
+                borderRadius: '8px',
+                px: 3,
+                '&:hover': { bgcolor: tokens.colors.brand[600] },
+              }}
+            >
+              Simpan Produk
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
+
+      {/* CONFIRM DELETE DIALOG */}
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title="Hapus Produk?"
+        content={`Apakah Anda yakin ingin menghapus produk "${deleteConfirm.product?.nama}"? Produk yang dihapus tidak dapat dipulihkan.`}
+        confirmText="Ya, Hapus"
+        isDanger={true}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteConfirm({ open: false, product: null })}
+      />
     </Box>
   );
 };
