@@ -11,20 +11,22 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-  Badge,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StorefrontIcon from '@mui/icons-material/Storefront';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import tokens from '../../theme/tokens';
+import StatusBadge from './StatusBadge';
 
 const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
@@ -42,9 +44,18 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
     navigate('/login');
   };
 
-  const displayName = user?.name || user?.username || 'Owner';
+  const displayName = user?.name || user?.username || 'Pengguna';
   const roleName = user?.role || 'Owner';
   const avatarLetter = displayName.charAt(0).toUpperCase();
+
+  // Role Badge Variant
+  const getRoleVariant = (role) => {
+    const r = (role || '').toLowerCase();
+    if (r === 'owner') return 'info';
+    if (r === 'admin') return 'neutral';
+    if (r === 'kasir') return 'success';
+    return 'neutral';
+  };
 
   return (
     <AppBar
@@ -54,11 +65,12 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
         width: { sm: `calc(100% - ${drawerWidth}px)` },
         ml: { sm: `${drawerWidth}px` },
         bgcolor: '#ffffff',
-        color: '#1e293b',
-        borderBottom: '1px solid #f1f5f9',
+        color: tokens.colors.neutral[800],
+        borderBottom: `1px solid ${tokens.colors.neutral[200]}`,
+        zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
-      <Toolbar sx={{ height: 72, px: { xs: 2, sm: 3.5 }, justifyContent: 'space-between' }}>
+      <Toolbar sx={{ height: 64, px: { xs: 2, sm: 3 }, justifyContent: 'space-between' }}>
         {/* Left: Mobile hamburger & Store Brand */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <IconButton
@@ -66,54 +78,90 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
             aria-label="open drawer"
             edge="start"
             onClick={onDrawerToggle}
-            sx={{ mr: 1, display: { sm: 'none' }, color: '#475569' }}
+            sx={{ mr: 0.5, display: { sm: 'none' }, color: tokens.colors.neutral[600] }}
           >
             <MenuIcon />
           </IconButton>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-            <StorefrontIcon sx={{ color: '#2563eb', fontSize: 22 }} />
-            <Typography
-              variant="subtitle1"
-              noWrap
-              component="div"
-              sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.975rem', letterSpacing: '-0.01em' }}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: '8px',
+                bgcolor: tokens.colors.brand[50],
+                color: tokens.colors.brand[500],
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              TOKAS POS
-            </Typography>
+              <StorefrontIcon sx={{ fontSize: 19 }} />
+            </Box>
+            <Box>
+              <Typography
+                variant="subtitle1"
+                noWrap
+                component="div"
+                sx={{
+                  fontWeight: 800,
+                  color: tokens.colors.neutral[900],
+                  fontSize: '0.925rem',
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1.2,
+                }}
+              >
+                TOKAS POS
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: '0.68rem',
+                  color: tokens.colors.success[600],
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                }}
+              >
+                
+              </Typography>
+            </Box>
           </Box>
         </Box>
 
-        {/* Right Section: Notification + Profile */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
-
-          {/* Notification Bell */}
-          <IconButton
-            sx={{
-              color: '#64748b',
-              bgcolor: 'transparent',
-              p: 1,
-              '&:hover': { bgcolor: '#f1f5f9', color: '#1e293b' }
-            }}
-          >
-            <Badge
-              variant="dot"
+        {/* Right Section: Quick Kasir Button + Role Badge + Profile */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
+          {/* Quick Kasir Shortcut for Non-Cashier Pages */}
+          {location.pathname !== '/kasir' && (
+            <Box
+              onClick={() => navigate('/kasir')}
               sx={{
-                '& .MuiBadge-badge': {
-                  bgcolor: '#ef4444',
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  top: 4,
-                  right: 4
-                }
+                display: { xs: 'none', md: 'flex' },
+                alignItems: 'center',
+                gap: 0.75,
+                px: 1.5,
+                py: 0.6,
+                borderRadius: '8px',
+                bgcolor: tokens.colors.brand[50],
+                color: tokens.colors.brand[600],
+                border: `1px solid ${tokens.colors.brand[100]}`,
+                cursor: 'pointer',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                transition: tokens.transitions.fast,
+                '&:hover': {
+                  bgcolor: tokens.colors.brand[100],
+                  borderColor: tokens.colors.brand[200],
+                },
               }}
             >
-              <NotificationsNoneOutlinedIcon sx={{ fontSize: 22 }} />
-            </Badge>
-          </IconButton>
+              <PointOfSaleIcon sx={{ fontSize: 16 }} />
+              Buka Kasir
+            </Box>
+          )}
 
-          {/* User Profile dropdown */}
+          {/* User Profile Dropdown */}
           <Box
             onClick={handleMenuOpen}
             sx={{
@@ -123,34 +171,50 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
               cursor: 'pointer',
               p: 0.5,
               pl: 1,
-              borderRadius: '12px',
-              transition: 'background 0.15s ease-in-out',
-              '&:hover': { bgcolor: '#f8fafc' },
+              borderRadius: '10px',
+              border: `1px solid transparent`,
+              transition: tokens.transitions.fast,
+              '&:hover': {
+                bgcolor: tokens.colors.neutral[50],
+                borderColor: tokens.colors.neutral[200],
+              },
             }}
           >
             <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
-              <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a', fontSize: '0.875rem', lineHeight: 1.2 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 700,
+                  color: tokens.colors.neutral[900],
+                  fontSize: '0.825rem',
+                  lineHeight: 1.2,
+                }}
+              >
                 {displayName}
               </Typography>
-              <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'capitalize' }}>
-                {roleName}
-              </Typography>
+              <Box sx={{ mt: 0.25 }}>
+                <StatusBadge
+                  label={roleName}
+                  variant={getRoleVariant(roleName)}
+                  size="small"
+                />
+              </Box>
             </Box>
 
             <Avatar
               sx={{
-                width: 36,
-                height: 36,
-                bgcolor: '#2563eb',
+                width: 34,
+                height: 34,
+                bgcolor: tokens.colors.brand[500],
                 color: '#ffffff',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 fontWeight: 700,
               }}
             >
               {avatarLetter}
             </Avatar>
 
-            <KeyboardArrowDownIcon sx={{ color: '#64748b', fontSize: 18 }} />
+            <KeyboardArrowDownIcon sx={{ color: tokens.colors.neutral[400], fontSize: 18 }} />
           </Box>
         </Box>
 
@@ -165,11 +229,11 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
           PaperProps={{
             elevation: 3,
             sx: {
-              mt: 1.5,
-              minWidth: 190,
+              mt: 1.2,
+              minWidth: 200,
               borderRadius: '12px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-              border: '1px solid #f1f5f9',
+              boxShadow: tokens.shadows.dropdown,
+              border: `1px solid ${tokens.colors.neutral[200]}`,
             },
           }}
         >
@@ -178,7 +242,7 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
               {displayName}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {roleName}
+              Role: {roleName}
             </Typography>
             <Divider sx={{ mt: 1 }} />
           </Box>
@@ -186,14 +250,14 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
             <ListItemIcon>
               <PersonIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText primary="Profil Pengguna" primaryTypographyProps={{ fontSize: '0.875rem' }} />
+            <ListItemText primary="Profil Pengguna" primaryTypographyProps={{ fontSize: '0.84rem' }} />
           </MenuItem>
           <Divider sx={{ my: 0.5 }} />
-          <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
-            <ListItemIcon sx={{ color: 'error.main' }}>
+          <MenuItem onClick={handleLogout} sx={{ color: tokens.colors.danger[600] }}>
+            <ListItemIcon sx={{ color: tokens.colors.danger[600] }}>
               <LogoutIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText primary="Logout" primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 600 }} />
+            <ListItemText primary="Keluar (Logout)" primaryTypographyProps={{ fontSize: '0.84rem', fontWeight: 600 }} />
           </MenuItem>
         </Menu>
       </Toolbar>
