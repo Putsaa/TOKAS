@@ -12,7 +12,7 @@ const MetricCard = ({
   iconBg = tokens.colors.brand[50],
   iconColor = tokens.colors.brand[500],
   trend,
-  trendType = 'positive', // 'positive' | 'negative' | 'neutral'
+  trendType = 'positive', 
   trendLabel,
   onClick,
   sx = {},
