@@ -34,7 +34,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin,admin,owner")]
     public async Task<ActionResult<ApiResponse<ProductDto>>> Create([FromBody] CreateProductRequest request)
     {
         var item = await _productService.CreateAsync(request);
@@ -42,7 +42,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin,admin,owner")]
     public async Task<ActionResult<ApiResponse>> Update(int id, [FromBody] UpdateProductRequest request)
     {
         await _productService.UpdateAsync(id, request);
@@ -50,7 +50,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPatch("{id}/status")]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin,admin,owner")]
     public async Task<ActionResult<ApiResponse>> UpdateStatus(int id, [FromBody] UpdateProductStatusRequest request)
     {
         await _productService.UpdateStatusAsync(id, request);

@@ -33,7 +33,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin,admin,owner")]
     public async Task<ActionResult<ApiResponse<CategoryDto>>> Create([FromBody] CreateCategoryRequest request)
     {
         var item = await _categoryService.CreateAsync(request);
@@ -41,7 +41,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin,admin,owner")]
     public async Task<ActionResult<ApiResponse>> Update(int id, [FromBody] UpdateCategoryRequest request)
     {
         await _categoryService.UpdateAsync(id, request);
@@ -49,7 +49,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPatch("{id}/status")]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin,admin,owner")]
     public async Task<ActionResult<ApiResponse>> UpdateStatus(int id, [FromBody] UpdateCategoryStatusRequest request)
     {
         await _categoryService.UpdateStatusAsync(id, request.IsActive);
@@ -57,7 +57,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Owner")]
+    [Authorize(Roles = "Owner,Admin,admin,owner")]
     public async Task<ActionResult<ApiResponse>> Delete(int id)
     {
         var hardDeleted = await _categoryService.DeleteAsync(id);
