@@ -28,13 +28,11 @@ const CategoriesPage = () => {
   const [search, setSearch] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('Semua');
 
-  // Modal Dialog Form State
   const [openModal, setOpenModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({ id: null, name: '', isActive: true });
   const [formError, setFormError] = useState('');
 
-  // Delete Confirmation Dialog State
   const [deleteDialog, setDeleteDialog] = useState({ open: false, category: null });
   const { enqueueSnackbar } = useSnackbar();
 
@@ -55,7 +53,6 @@ const CategoriesPage = () => {
     fetchCategories();
   }, [fetchCategories]);
 
-  // Stats
   const stats = useMemo(() => {
     const total = categories.length;
     const active = categories.filter(c => c.isActive !== false).length;
@@ -63,7 +60,6 @@ const CategoriesPage = () => {
     return { total, active, inactive };
   }, [categories]);
 
-  // Filtered
   const filteredCategories = useMemo(() => {
     return categories.filter(c => {
       const matchSearch = !search || c.name.toLowerCase().includes(search.toLowerCase());
@@ -170,7 +166,6 @@ const CategoriesPage = () => {
         }
       />
 
-      {/* 3 Metric Cards */}
       <Box
         sx={{
           display: 'grid',
@@ -210,7 +205,6 @@ const CategoriesPage = () => {
         />
       </Box>
 
-      {/* Filter Toolbar */}
       <Card
         elevation={0}
         sx={{
@@ -280,7 +274,6 @@ const CategoriesPage = () => {
         </Box>
       </Card>
 
-      {/* Table */}
       <Card
         elevation={0}
         sx={{
@@ -349,7 +342,6 @@ const CategoriesPage = () => {
         </TableContainer>
       </Card>
 
-      {/* MODAL DIALOG: TAMBAH / UBAH KATEGORI */}
       <Dialog
         open={openModal}
         onClose={handleCloseModal}
@@ -422,7 +414,6 @@ const CategoriesPage = () => {
         </form>
       </Dialog>
 
-      {/* CONFIRM DELETE DIALOG */}
       <ConfirmDialog
         open={deleteDialog.open}
         title="Hapus Kategori?"

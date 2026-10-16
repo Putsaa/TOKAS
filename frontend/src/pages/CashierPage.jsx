@@ -53,7 +53,6 @@ const CashierPage = () => {
   const [note, setNote] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
 
-  // Initial cart with items
   const [cart, setCart] = useState([
     {
       productId: 1,
@@ -82,7 +81,7 @@ const CashierPage = () => {
   ]);
 
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('Tunai'); // 'Tunai' or 'Non Tunai'
+  const [paymentMethod, setPaymentMethod] = useState('Tunai'); 
   const [cashAmount, setCashAmount] = useState('');
   const [receiptDialog, setReceiptDialog] = useState(false);
   const [completedTx, setCompletedTx] = useState(null);
@@ -92,7 +91,6 @@ const CashierPage = () => {
   const cashInputRef = useRef(null);
   const { enqueueSnackbar } = useSnackbar();
 
-  // Load & synchronize products
   useEffect(() => {
     fetchAndSyncProducts().then(items => {
       if (items && items.length > 0) {
@@ -110,7 +108,6 @@ const CashierPage = () => {
     return () => window.removeEventListener('tokas_stock_updated', handleStockUpdate);
   }, []);
 
-  // Filter products by category and search keyword
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
       const matchCat =
@@ -125,7 +122,6 @@ const CashierPage = () => {
     });
   }, [products, selectedCategory, search]);
 
-  // Calculations
   const totalItemCount = useMemo(() => {
     return cart.reduce((acc, item) => acc + item.quantity, 0);
   }, [cart]);
@@ -143,7 +139,6 @@ const CashierPage = () => {
   const taxAmount = Math.round(afterDiscount * 0.05);
   const totalPayment = afterDiscount + taxAmount;
 
-  // Cart operations
   const addToCart = useCallback((product) => {
     if (product.stok <= 0) {
       enqueueSnackbar('Stok produk habis!', { variant: 'warning' });
@@ -225,7 +220,6 @@ const CashierPage = () => {
       return;
     }
 
-    // Deduct stock in real-time
     const updatedProducts = deductStockFromSale(cart);
     setProducts(updatedProducts);
 
@@ -258,10 +252,9 @@ const CashierPage = () => {
     }
   }, [cashAmount, totalPayment, paymentMethod, cart, note, enqueueSnackbar]);
 
-  // Keyboard Shortcuts Listener for Cashier Efficiency
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // If modal dialog is open
+      
       if (paymentModalOpen) {
         if (e.key === 'Escape') {
           e.preventDefault();
@@ -284,7 +277,6 @@ const CashierPage = () => {
         return;
       }
 
-      // POS main keyboard flow
       if (e.key === 'F2') {
         e.preventDefault();
         if (searchInputRef.current) {
@@ -317,7 +309,7 @@ const CashierPage = () => {
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', pb: 4 }}>
-      {/* TOPBAR: Title + Keyboard Shortcuts Guide + Search */}
+      
       <Box
         sx={{
           display: 'flex',
@@ -347,9 +339,8 @@ const CashierPage = () => {
           </Typography>
         </Box>
 
-        {/* Right side: Keyboard Shortcut Pills & Search Box */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', width: { xs: '100%', lg: 'auto' } }}>
-          {/* Quick Keyboard Helper Pills */}
+          
           <Box
             sx={{
               display: { xs: 'none', md: 'flex' },
@@ -368,7 +359,6 @@ const CashierPage = () => {
             <KeyboardBadge shortcut="F8" label="QRIS" />
           </Box>
 
-          {/* Search Box */}
           <Box
             sx={{
               display: 'flex',
@@ -413,7 +403,6 @@ const CashierPage = () => {
         </Box>
       </Box>
 
-      {/* TWO-COLUMN LAYOUT: Catalog (Left) & Cart / Summary (Right) */}
       <Box
         sx={{
           display: 'grid',
@@ -426,9 +415,9 @@ const CashierPage = () => {
           alignItems: 'start',
         }}
       >
-        {/* LEFT COLUMN: Categories & Product Catalog Grid */}
+        
         <Box sx={{ width: '100%' }}>
-          {/* Categories Pills */}
+          
           <Box
             sx={{
               display: 'flex',
@@ -472,7 +461,6 @@ const CashierPage = () => {
             })}
           </Box>
 
-          {/* Product Grid */}
           <Box
             sx={{
               display: 'grid',
@@ -518,7 +506,7 @@ const CashierPage = () => {
                       : undefined,
                   }}
                 >
-                  {/* In Cart Quantity Pill Badge */}
+                  
                   {inCartItem && (
                     <Box
                       sx={{
@@ -538,7 +526,6 @@ const CashierPage = () => {
                     </Box>
                   )}
 
-                  {/* Thumbnail Visual */}
                   <Box
                     sx={{
                       height: 80,
@@ -554,7 +541,6 @@ const CashierPage = () => {
                     <ProductVisual code={p.kode} name={p.nama} size={52} />
                   </Box>
 
-                  {/* Product Details */}
                   <Box>
                     <Typography
                       variant="caption"
@@ -598,7 +584,6 @@ const CashierPage = () => {
                       {formatCurrency(p.hargaJual)}
                     </Typography>
 
-                    {/* Stock & Add Action */}
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <StatusBadge
                         status={isOutOfStock ? 'habis' : isLow ? 'menipis' : 'aman'}
@@ -643,7 +628,6 @@ const CashierPage = () => {
           </Box>
         </Box>
 
-        {/* RIGHT COLUMN: Keranjang Belanja (POS Cart) */}
         <Card
           elevation={0}
           sx={{
@@ -658,7 +642,7 @@ const CashierPage = () => {
             top: { lg: 80 },
           }}
         >
-          {/* Cart Header */}
+          
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.75 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: tokens.colors.neutral[900], fontSize: '1rem' }}>
@@ -699,7 +683,6 @@ const CashierPage = () => {
             )}
           </Box>
 
-          {/* Table Header */}
           <Box
             sx={{
               display: 'grid',
@@ -719,7 +702,6 @@ const CashierPage = () => {
             <Box sx={{ textAlign: 'right' }}>Subtotal</Box>
           </Box>
 
-          {/* Cart Items List */}
           <Box
             sx={{
               display: 'flex',
@@ -748,7 +730,7 @@ const CashierPage = () => {
                     borderBottom: `1px solid ${tokens.colors.neutral[100]}`,
                   }}
                 >
-                  {/* Name */}
+                  
                   <Box sx={{ pr: 1, minWidth: 0 }}>
                     <Typography
                       variant="body2"
@@ -762,12 +744,10 @@ const CashierPage = () => {
                     </Typography>
                   </Box>
 
-                  {/* Price */}
                   <Box sx={{ textAlign: 'right', fontSize: '0.78rem', color: tokens.colors.neutral[600], fontFeatureSettings: '"tnum"' }}>
                     {formatCurrency(item.price)}
                   </Box>
 
-                  {/* Qty Stepper */}
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.4 }}>
                     <Box
                       onClick={() => updateQuantity(item.productId, -1)}
@@ -809,7 +789,6 @@ const CashierPage = () => {
                     </Box>
                   </Box>
 
-                  {/* Subtotal & Delete Action */}
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5 }}>
                     <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: tokens.colors.neutral[900], fontFeatureSettings: '"tnum"' }}>
                       {formatCurrency(item.subtotal)}
@@ -827,7 +806,6 @@ const CashierPage = () => {
             )}
           </Box>
 
-          {/* Optional Note */}
           <Box sx={{ my: 1.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
               <NotesOutlinedIcon sx={{ fontSize: 15, color: tokens.colors.neutral[500] }} />
@@ -855,7 +833,6 @@ const CashierPage = () => {
 
           <Divider sx={{ my: 1, borderColor: tokens.colors.neutral[200] }} />
 
-          {/* Payment Calculation Details */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, my: 1 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="body2" sx={{ color: tokens.colors.neutral[600], fontSize: '0.825rem' }}>
@@ -866,7 +843,6 @@ const CashierPage = () => {
               </Typography>
             </Box>
 
-            {/* Diskon */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="body2" sx={{ color: tokens.colors.neutral[600], fontSize: '0.825rem' }}>
                 Diskon Penjualan (%)
@@ -897,7 +873,6 @@ const CashierPage = () => {
               </Box>
             </Box>
 
-            {/* Pajak PPN 5% */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="body2" sx={{ color: tokens.colors.neutral[600], fontSize: '0.825rem' }}>
                 Pajak (PPN 5%)
@@ -910,7 +885,6 @@ const CashierPage = () => {
 
           <Divider sx={{ my: 1, borderColor: tokens.colors.neutral[200] }} />
 
-          {/* TOTAL PAYMENT HIGHLIGHT */}
           <Box
             sx={{
               display: 'flex',
@@ -945,9 +919,8 @@ const CashierPage = () => {
             </Typography>
           </Box>
 
-          {/* ACTION PAYMENT BUTTONS */}
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.25, mt: 1 }}>
-            {/* Bayar Tunai [F4] */}
+            
             <Button
               variant="contained"
               onClick={() => handleOpenPayment('Tunai')}
@@ -966,7 +939,6 @@ const CashierPage = () => {
               Tunai <KeyboardBadge shortcut="F4" sx={{ ml: 0.75 }} />
             </Button>
 
-            {/* Bayar Non Tunai / QRIS [F8] */}
             <Button
               variant="contained"
               onClick={() => handleOpenPayment('Non Tunai')}
@@ -986,7 +958,6 @@ const CashierPage = () => {
             </Button>
           </Box>
 
-          {/* Draf Pesanan [F10] */}
           <Button
             variant="outlined"
             onClick={() => enqueueSnackbar('Pesanan tersimpan di draf', { variant: 'info' })}
@@ -1007,7 +978,6 @@ const CashierPage = () => {
         </Card>
       </Box>
 
-      {/* PAYMENT MODAL DIALOG */}
       <Dialog
         open={paymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
@@ -1069,7 +1039,6 @@ const CashierPage = () => {
                 }}
               />
 
-              {/* Quick Cash Buttons */}
               <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 2 }}>
                 {[totalPayment, 50000, 100000, 200000, 500000].map(amt => (
                   <Box
@@ -1094,7 +1063,6 @@ const CashierPage = () => {
                 ))}
               </Box>
 
-              {/* Live Change Calculation Box */}
               <Box
                 sx={{
                   p: 1.75,
@@ -1184,7 +1152,6 @@ const CashierPage = () => {
         </DialogActions>
       </Dialog>
 
-      {/* RECEIPT / STRUK DIALOG */}
       <Dialog
         open={receiptDialog}
         onClose={() => setReceiptDialog(false)}
@@ -1270,7 +1237,6 @@ const CashierPage = () => {
         </DialogActions>
       </Dialog>
 
-      {/* CONFIRM CLEAR CART DIALOG */}
       <ConfirmDialog
         open={clearCartConfirm}
         title="Kosongkan Keranjang?"
