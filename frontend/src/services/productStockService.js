@@ -69,7 +69,7 @@ export const deductStockFromSale = (purchasedItems) => {
  */
 export const fetchAndSyncProducts = async () => {
   try {
-    const res = await api.get('/products?pageSize=50');
+    const res = await api.get('/products?pageSize=100');
     const items = res.data?.data?.items;
     if (Array.isArray(items) && items.length > 0) {
       const mapped = items.map(p => ({
@@ -80,6 +80,8 @@ export const fetchAndSyncProducts = async () => {
         hargaBeli: p.purchasePrice !== undefined ? p.purchasePrice : (p.hargaBeli || 0),
         hargaJual: p.sellingPrice !== undefined ? p.sellingPrice : (p.hargaJual || 0),
         stok: p.stock !== undefined ? p.stock : (p.stok || 0),
+        minimumStock: p.minimumStock !== undefined ? p.minimumStock : (p.minStock || 10),
+        unit: p.unit || 'pcs',
         status: p.isActive !== undefined ? (p.isActive ? 'Aktif' : 'Nonaktif') : (p.status || 'Aktif'),
       }));
       saveStoredProducts(mapped);
