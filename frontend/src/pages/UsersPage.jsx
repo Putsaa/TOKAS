@@ -67,20 +67,10 @@ const UsersPage = () => {
       if (res.data?.data && Array.isArray(res.data.data)) {
         setUsers(res.data.data);
       } else {
-        // Fallback
-        setUsers([
-          { id: 1, name: 'Toko Owner', username: 'owner', role: 'Owner', isActive: true, createdAt: '2025-01-10' },
-          { id: 2, name: 'Admin Gudang', username: 'admin', role: 'Admin', isActive: true, createdAt: '2025-02-15' },
-          { id: 3, name: 'Siti Kasir Pagi', username: 'kasir1', role: 'Kasir', isActive: true, createdAt: '2025-03-01' },
-          { id: 4, name: 'Budi Kasir Sore', username: 'kasir2', role: 'Kasir', isActive: true, createdAt: '2025-03-05' },
-        ]);
+        setUsers([]);
       }
     } catch (err) {
-      setUsers([
-        { id: 1, name: 'Toko Owner', username: 'owner', role: 'Owner', isActive: true, createdAt: '2025-01-10' },
-        { id: 2, name: 'Admin Gudang', username: 'admin', role: 'Admin', isActive: true, createdAt: '2025-02-15' },
-        { id: 3, name: 'Siti Kasir Pagi', username: 'kasir1', role: 'Kasir', isActive: true, createdAt: '2025-03-01' },
-      ]);
+      setUsers([]);
     }
   }, []);
 
@@ -154,9 +144,8 @@ const UsersPage = () => {
           isActive: formData.isActive,
           ...(formData.password ? { password: formData.password } : {}),
         };
-        await api.put(`/users/${editingUser.id}`, updatePayload).catch(() => {});
-        setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, ...updatePayload } : u));
-        enqueueSnackbar('Data pengguna berhasil diperbarui!', { variant: 'success' });
+        await api.put(`/users/${editingUser.id}`, updatePayload);
+        enqueueSnackbar('Data pengguna berhasil diperbarui di database!', { variant: 'success' });
       } else {
         const createPayload = {
           name: formData.name.trim(),
@@ -164,17 +153,14 @@ const UsersPage = () => {
           password: formData.password,
           roleId: formData.roleId,
         };
-        const roleName = formData.roleId === 1 ? 'Owner' : formData.roleId === 3 ? 'Admin' : 'Kasir';
-        const res = await api.post('/users', createPayload).catch(() => ({
-          data: { data: { id: Date.now(), ...createPayload, role: roleName, isActive: true, createdAt: new Date().toISOString() } }
-        }));
-        const created = res.data?.data || { id: Date.now(), ...createPayload, role: roleName, isActive: true, createdAt: new Date().toISOString() };
-        setUsers(prev => [created, ...prev]);
-        enqueueSnackbar('Akun staf baru berhasil dibuat!', { variant: 'success' });
+        await api.post('/users', createPayload);
+        enqueueSnackbar('Akun staf baru berhasil dibuat di database!', { variant: 'success' });
       }
       setOpenModal(false);
+      await fetchUsers();
     } catch (err) {
-      enqueueSnackbar('Gagal menyimpan data pengguna', { variant: 'error' });
+      const msg = err.response?.data?.message || 'Gagal menyimpan data pengguna ke server';
+      enqueueSnackbar(msg, { variant: 'error' });
     }
   };
 
@@ -183,9 +169,9 @@ const UsersPage = () => {
     if (!u) return;
     const newStatus = !u.isActive;
     try {
-      await api.put(`/users/${u.id}`, { name: u.name, isActive: newStatus }).catch(() => {});
-      setUsers(prev => prev.map(item => item.id === u.id ? { ...item, isActive: newStatus } : item));
+      await api.put(`/users/${u.id}`, { name: u.name, username: u.username, isActive: newStatus });
       enqueueSnackbar(`Status akun "${u.name}" diubah menjadi ${newStatus ? 'Aktif' : 'Nonaktif'}`, { variant: 'info' });
+      await fetchUsers();
     } catch (e) {
       enqueueSnackbar('Gagal memperbarui status akun', { variant: 'error' });
     } finally {
