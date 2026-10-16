@@ -246,31 +246,16 @@ const CashierPage = () => {
       if (fresh && fresh.length > 0) {
         setProducts(fresh);
       }
-      setCompletedTx(res.data?.data || {
-        transactionNo: `TRX-${Date.now().toString().slice(-6)}`,
-        total: totalPayment,
-        paymentAmount: cashNum,
-        changeAmount: Math.max(0, cashNum - totalPayment),
-        items: [...cart],
-        date: new Date().toLocaleString('id-ID'),
-      });
+      setCompletedTx(res.data?.data);
+      setPaymentModalOpen(false);
+      setReceiptDialog(true);
+      setCart([]);
+      setNote('');
+      enqueueSnackbar('Transaksi berhasil diselesaikan! Stok otomatis diperbarui di database.', { variant: 'success' });
     } catch (err) {
-      // Mock fallback completion
-      setCompletedTx({
-        transactionNo: `TRX-${Date.now().toString().slice(-6)}`,
-        total: totalPayment,
-        paymentAmount: cashNum,
-        changeAmount: Math.max(0, cashNum - totalPayment),
-        items: [...cart],
-        date: new Date().toLocaleString('id-ID'),
-      });
+      const msg = err.response?.data?.message || 'Gagal memproses transaksi kasir ke database';
+      enqueueSnackbar(msg, { variant: 'error' });
     }
-
-    setPaymentModalOpen(false);
-    setReceiptDialog(true);
-    setCart([]);
-    setNote('');
-    enqueueSnackbar('Transaksi berhasil diselesaikan! Stok otomatis diperbarui.', { variant: 'success' });
   }, [cashAmount, totalPayment, paymentMethod, cart, note, enqueueSnackbar]);
 
   // Keyboard Shortcuts Listener for Cashier Efficiency
