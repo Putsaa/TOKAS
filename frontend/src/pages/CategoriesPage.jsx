@@ -41,18 +41,13 @@ const CategoriesPage = () => {
   const fetchCategories = useCallback(async () => {
     try {
       const res = await api.get('/categories');
-      if (res.data?.data) {
+      if (res.data?.data && Array.isArray(res.data.data)) {
         setCategories(res.data.data);
+      } else {
+        setCategories([]);
       }
     } catch (err) {
-      // Fallback
-      setCategories([
-        { id: 1, name: 'Makanan & Minuman', isActive: true },
-        { id: 2, name: 'Alat Tulis', isActive: true },
-        { id: 3, name: 'Perlengkapan Kantor', isActive: true },
-        { id: 4, name: 'Kebersihan', isActive: true },
-        { id: 5, name: 'Elektronik', isActive: true },
-      ]);
+      setCategories([]);
     }
   }, []);
 
@@ -116,21 +111,20 @@ const CategoriesPage = () => {
         await api.put(`/categories/${formData.id}`, {
           name: formData.name.trim(),
           isActive: formData.isActive,
-        }).catch(() => {});
-        setCategories(prev =>
-          prev.map(c => c.id === formData.id ? { ...c, name: formData.name.trim(), isActive: formData.isActive } : c)
-        );
-        enqueueSnackbar('Kategori berhasil diperbarui', { variant: 'success' });
+        });
+        enqueueSnackbar('Kategori berhasil diperbarui di database', { variant: 'success' });
       } else {
-        const payload = { name: formData.name.trim(), isActive: formData.isActive };
-        const res = await api.post('/categories', payload).catch(() => ({ data: { data: { id: Date.now(), ...payload } } }));
-        const created = res.data?.data || { id: Date.now(), ...payload };
-        setCategories(prev => [created, ...prev]);
-        enqueueSnackbar('Kategori baru berhasil ditambahkan', { variant: 'success' });
+        await api.post('/categories', {
+          name: formData.name.trim(),
+          isActive: formData.isActive,
+        });
+        enqueueSnackbar('Kategori baru berhasil ditambahkan ke database', { variant: 'success' });
       }
       setOpenModal(false);
+      await fetchCategories();
     } catch (err) {
-      enqueueSnackbar('Gagal menyimpan kategori', { variant: 'error' });
+      const msg = err.response?.data?.message || 'Gagal menyimpan kategori ke server';
+      enqueueSnackbar(msg, { variant: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -140,11 +134,12 @@ const CategoriesPage = () => {
     const cat = deleteDialog.category;
     if (!cat) return;
     try {
-      await api.delete(`/categories/${cat.id}`).catch(() => {});
-      setCategories(prev => prev.filter(c => c.id !== cat.id));
-      enqueueSnackbar(`Kategori "${cat.name}" berhasil dihapus`, { variant: 'info' });
+      await api.delete(`/categories/${cat.id}`);
+      enqueueSnackbar(`Kategori "${cat.name}" berhasil dihapus dari database`, { variant: 'info' });
+      await fetchCategories();
     } catch (err) {
-      enqueueSnackbar('Gagal menghapus kategori', { variant: 'error' });
+      const msg = err.response?.data?.message || 'Gagal menghapus kategori dari server';
+      enqueueSnackbar(msg, { variant: 'error' });
     } finally {
       setDeleteDialog({ open: false, category: null });
     }
