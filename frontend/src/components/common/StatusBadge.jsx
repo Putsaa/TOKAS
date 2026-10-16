@@ -2,11 +2,6 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import tokens from '../../theme/tokens';
 
-/**
- * StatusBadge Component
- * Semantic status indicator badge with high-contrast text and clean background
- * variants: 'success' | 'warning' | 'danger' | 'info' | 'neutral'
- */
 const StatusBadge = ({
   status,
   variant,
@@ -15,7 +10,7 @@ const StatusBadge = ({
   showDot = false,
   sx = {},
 }) => {
-  // Determine variant automatically if status string is provided
+  
   let determinedVariant = variant || 'neutral';
   let displayLabel = label;
 
