@@ -76,9 +76,8 @@ const ReportsPage = () => {
   const totalSalesVal = report?.totalSales ?? 0;
   const totalTrxVal = report?.totalTransactions ?? 0;
   const totalItemsVal = report?.totalItemsSold ?? 0;
-  const estimatedProfit = Math.round(totalSalesVal * 0.28); // Approx 28% gross margin
+  const estimatedProfit = Math.round(totalSalesVal * 0.28); 
 
-  // Chart data
   const chartData = useMemo(() => {
     if (report?.dailySales && Array.isArray(report.dailySales)) {
       return report.dailySales.map(d => {
@@ -122,7 +121,6 @@ const ReportsPage = () => {
         }
       />
 
-      {/* 4 Metric KPI Cards */}
       <Box
         sx={{
           display: 'grid',
@@ -178,7 +176,6 @@ const ReportsPage = () => {
         />
       </Box>
 
-      {/* Filter Period Toolbar */}
       <Card
         elevation={0}
         sx={{
@@ -214,7 +211,6 @@ const ReportsPage = () => {
         </Box>
       </Card>
 
-      {/* TWO COLUMN ROW: Chart (Left) & Best Sellers (Right) */}
       <Box
         sx={{
           display: 'grid',
@@ -225,7 +221,7 @@ const ReportsPage = () => {
           gap: 2.5,
         }}
       >
-        {/* Left: Bar Chart Penjualan Harian */}
+        
         <Card
           elevation={0}
           sx={{
@@ -284,7 +280,6 @@ const ReportsPage = () => {
           </Box>
         </Card>
 
-        {/* Right: Best Sellers Table */}
         <Card
           elevation={0}
           sx={{

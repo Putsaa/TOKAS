@@ -65,7 +65,6 @@ const TransactionsPage = () => {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  // Metrics
   const stats = useMemo(() => {
     const totalCount = transactions.length;
     const totalSales = transactions.reduce((acc, t) => acc + (Number(t.total) || 0), 0);
@@ -73,7 +72,6 @@ const TransactionsPage = () => {
     return { totalCount, totalSales, avgBasket };
   }, [transactions]);
 
-  // Filtered
   const filteredTransactions = useMemo(() => {
     return transactions.filter(t => {
       const q = search.toLowerCase();
@@ -112,7 +110,6 @@ const TransactionsPage = () => {
         subtitle="Daftar seluruh transaksi kasir, metode pembayaran, dan pencetakan struk belanja."
       />
 
-      {/* 3 Metric Summary Cards */}
       <Box
         sx={{
           display: 'grid',
@@ -152,7 +149,6 @@ const TransactionsPage = () => {
         />
       </Box>
 
-      {/* Filter Toolbar */}
       <Card
         elevation={0}
         sx={{
@@ -222,7 +218,6 @@ const TransactionsPage = () => {
         </Box>
       </Card>
 
-      {/* Transactions Table */}
       <Card
         elevation={0}
         sx={{
@@ -321,7 +316,6 @@ const TransactionsPage = () => {
         </TableContainer>
       </Card>
 
-      {/* DETAIL STRUK MODAL DIALOG */}
       <Dialog
         open={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
