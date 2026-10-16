@@ -72,7 +72,7 @@ const LoginPage = () => {
           boxShadow: tokens.shadows.modal,
         }}
       >
-        {/* Logo and Brand */}
+        
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
           <Box
             component="img"
@@ -183,7 +183,6 @@ const LoginPage = () => {
             {isLoading ? 'Memverifikasi...' : 'Masuk ke Sistem POS'}
           </Button>
 
-          {/* Quick Credential Helper Chips */}
           <Box sx={{ mt: 3, pt: 2.5, borderTop: `1px solid ${tokens.colors.neutral[200]}` }}>
             <Typography
               variant="caption"

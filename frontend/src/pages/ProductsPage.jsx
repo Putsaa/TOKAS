@@ -69,7 +69,6 @@ const ProductsPage = () => {
     return () => window.removeEventListener('tokas_stock_updated', handleStockUpdate);
   }, [fetchProducts, fetchCategories]);
 
-  // Metric stats
   const stats = useMemo(() => {
     const totalProduk = products.length;
     const totalStok = products.reduce((acc, p) => acc + (parseInt(p.stok, 10) || 0), 0);
@@ -78,7 +77,6 @@ const ProductsPage = () => {
     return { totalProduk, totalStok, stokMenipis, nilaiInventaris };
   }, [products]);
 
-  // Categories list
   const categoriesList = useMemo(() => {
     const fromCategories = categoryOptions.map(c => c.name);
     const fromProducts = products.map(p => p.kategori).filter(Boolean);
@@ -86,7 +84,6 @@ const ProductsPage = () => {
     return ['Semua', ...Array.from(set)];
   }, [categoryOptions, products]);
 
-  // Filtered Products
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
       const matchCat = selectedKategori === 'Semua' || p.kategori === selectedKategori;
@@ -181,7 +178,7 @@ const ProductsPage = () => {
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', pb: 4 }}>
-      {/* Page Header with Action */}
+      
       <PageHeader
         title="Katalog Produk & Inventaris"
         subtitle="Kelola SKU, penetapan harga jual/beli, serta pantau level stok fisik."
@@ -205,7 +202,6 @@ const ProductsPage = () => {
         }
       />
 
-      {/* 4 Summary Metric Cards */}
       <Box
         sx={{
           display: 'grid',
@@ -254,7 +250,6 @@ const ProductsPage = () => {
         />
       </Box>
 
-      {/* FILTER & SEARCH TOOLBAR */}
       <Card
         elevation={0}
         sx={{
@@ -275,7 +270,7 @@ const ProductsPage = () => {
             gap: 2,
           }}
         >
-          {/* Search Bar */}
+          
           <Box
             sx={{
               display: 'flex',
@@ -308,7 +303,6 @@ const ProductsPage = () => {
             )}
           </Box>
 
-          {/* Filters Select */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
             <FormControl size="small" sx={{ minWidth: 160 }}>
               <InputLabel sx={{ fontSize: '0.825rem' }}>Kategori</InputLabel>
@@ -362,7 +356,6 @@ const ProductsPage = () => {
         </Box>
       </Card>
 
-      {/* PRODUCTS DATA TABLE */}
       <Card
         elevation={0}
         sx={{
@@ -404,7 +397,6 @@ const ProductsPage = () => {
                   const isOutOfStock = stockNum <= 0;
                   const isLowStock = stockNum > 0 && stockNum < 20;
 
-                  // Margin calculation
                   const marginAmt = p.hargaJual - p.hargaBeli;
                   const marginPct = p.hargaBeli > 0 ? Math.round((marginAmt / p.hargaBeli) * 100) : 0;
 
@@ -505,7 +497,6 @@ const ProductsPage = () => {
         </TableContainer>
       </Card>
 
-      {/* MODAL DIALOG: TAMBAH / UBAH PRODUK */}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -618,7 +609,6 @@ const ProductsPage = () => {
         </form>
       </Dialog>
 
-      {/* CONFIRM DELETE DIALOG */}
       <ConfirmDialog
         open={deleteConfirm.open}
         title="Hapus Produk?"
