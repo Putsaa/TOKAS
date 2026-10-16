@@ -8,7 +8,7 @@ namespace TOKAS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Owner")]
+[Authorize(Roles = "Owner,Admin,admin,owner")]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
