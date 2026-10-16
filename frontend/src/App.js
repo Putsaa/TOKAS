@@ -7,9 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import CashierPage from './pages/CashierPage';
 import ProductsPage from './pages/ProductsPage';
 import CategoriesPage from './pages/CategoriesPage';
-import StockInPage from './pages/StockInPage';
-import StockAdjustmentPage from './pages/StockAdjustmentPage';
-import LowStockPage from './pages/LowStockPage';
+import StockManagementPage from './pages/StockManagementPage';
 import TransactionsPage from './pages/TransactionsPage';
 import ReportsPage from './pages/ReportsPage';
 import UsersPage from './pages/UsersPage';
@@ -27,9 +25,10 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['Owner', 'Admin', 'admin']} />}>
             <Route path="/produk" element={<ProductsPage />} />
             <Route path="/kategori" element={<CategoriesPage />} />
-            <Route path="/stok-masuk" element={<StockInPage />} />
-            <Route path="/penyesuaian-stok" element={<StockAdjustmentPage />} />
-            <Route path="/stok-menipis" element={<LowStockPage />} />
+            <Route path="/stok" element={<StockManagementPage />} />
+            <Route path="/stok-masuk" element={<StockManagementPage defaultTab={1} />} />
+            <Route path="/penyesuaian-stok" element={<StockManagementPage defaultTab={2} />} />
+            <Route path="/stok-menipis" element={<StockManagementPage defaultTab={0} />} />
             <Route path="/transaksi" element={<TransactionsPage />} />
             <Route path="/laporan" element={<ReportsPage />} />
             <Route path="/pengguna" element={<UsersPage />} />

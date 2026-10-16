@@ -63,9 +63,12 @@ const MainLayout = () => {
         items: [
           { text: 'Katalog Produk', icon: <Inventory2OutlinedIcon sx={{ fontSize: 20 }} />, path: '/produk' },
           { text: 'Kategori', icon: <GridViewIcon sx={{ fontSize: 20 }} />, path: '/kategori' },
-          { text: 'Stok Masuk', icon: <FileDownloadOutlinedIcon sx={{ fontSize: 20 }} />, path: '/stok-masuk' },
-          { text: 'Penyesuaian Stok', icon: <TuneOutlinedIcon sx={{ fontSize: 20 }} />, path: '/penyesuaian-stok' },
-          { text: 'Stok Menipis', icon: <WarningAmberRoundedIcon sx={{ fontSize: 20 }} />, path: '/stok-menipis', badge: 'Alert' },
+          {
+            text: 'Kelola Stok & Opname',
+            icon: <TuneOutlinedIcon sx={{ fontSize: 20 }} />,
+            path: '/stok',
+            activePaths: ['/stok', '/stok-masuk', '/penyesuaian-stok', '/stok-menipis'],
+          },
         ],
       },
       {
@@ -140,7 +143,9 @@ const MainLayout = () => {
 
             <List disablePadding>
               {section.items.map((item) => {
-                const isSelected = location.pathname === item.path;
+                const isSelected = item.activePaths
+                  ? item.activePaths.includes(location.pathname)
+                  : location.pathname === item.path;
                 return (
                   <ListItem key={item.text} disablePadding sx={{ mb: 0.4 }}>
                     <ListItemButton
