@@ -78,7 +78,6 @@ const UsersPage = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Metrics
   const stats = useMemo(() => {
     const total = users.length;
     const kasirCount = users.filter(u => (u.role || '').toLowerCase() === 'kasir').length;
@@ -86,7 +85,6 @@ const UsersPage = () => {
     return { total, kasirCount, adminCount };
   }, [users]);
 
-  // Filtered
   const filteredUsers = useMemo(() => {
     return users.filter(u => {
       const q = search.toLowerCase();
@@ -105,7 +103,7 @@ const UsersPage = () => {
       name: '',
       username: '',
       password: '',
-      roleId: 2, // 2: Kasir, 3: Admin, 1: Owner
+      roleId: 2, 
       isActive: true,
     });
     setFormError('');
@@ -204,7 +202,6 @@ const UsersPage = () => {
         }
       />
 
-      {/* 3 Metric Cards */}
       <Box
         sx={{
           display: 'grid',
@@ -244,7 +241,6 @@ const UsersPage = () => {
         />
       </Box>
 
-      {/* Filter Toolbar */}
       <Card
         elevation={0}
         sx={{
@@ -315,7 +311,6 @@ const UsersPage = () => {
         </Box>
       </Card>
 
-      {/* Users Table */}
       <Card
         elevation={0}
         sx={{
@@ -421,7 +416,6 @@ const UsersPage = () => {
         </TableContainer>
       </Card>
 
-      {/* MODAL DIALOG: TAMBAH / UBAH USER */}
       <Dialog
         open={openModal}
         onClose={() => setOpenModal(false)}
@@ -523,7 +517,6 @@ const UsersPage = () => {
         </form>
       </Dialog>
 
-      {/* CONFIRM TOGGLE STATUS */}
       <ConfirmDialog
         open={toggleConfirm.open}
         title={`${toggleConfirm.user?.isActive !== false ? 'Nonaktifkan' : 'Aktifkan'} Akun?`}
