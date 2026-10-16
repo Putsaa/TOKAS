@@ -1,9 +1,7 @@
-// Design Tokens for TOKAS POS & Inventory System
-// Clean, professional, high-reliability theme tokens
 
 export const tokens = {
   colors: {
-    // Primary Brand - Trusted Navy / Cobalt Blue
+    
     brand: {
       50: '#eff6ff',
       100: '#dbeafe',
@@ -14,7 +12,6 @@ export const tokens = {
       surface: '#f8fafc',
     },
 
-    // Neutral Grayscale - Slate
     neutral: {
       0: '#ffffff',
       50: '#f8fafc',
@@ -29,8 +26,6 @@ export const tokens = {
       900: '#0f172a',
     },
 
-    // Semantic Status Colors
-    // 1. Success / Safe Stock (Emerald)
     success: {
       50: '#f0fdf4',
       100: '#dcfce7',
@@ -41,7 +36,6 @@ export const tokens = {
       border: '#bbf7d0',
     },
 
-    // 2. Warning / Low Stock (Warm Amber)
     warning: {
       50: '#fffbeb',
       100: '#fef3c7',
@@ -52,7 +46,6 @@ export const tokens = {
       border: '#fde68a',
     },
 
-    // 3. Danger / Critical Stock / Error (Crimson Red)
     danger: {
       50: '#fef2f2',
       100: '#fee2e2',
@@ -63,7 +56,6 @@ export const tokens = {
       border: '#fecaca',
     },
 
-    // 4. Info / Neutral accent (Sky Blue)
     info: {
       50: '#f0f9ff',
       100: '#e0f2fe',

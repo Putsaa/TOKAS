@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('tokas_user', JSON.stringify(userData));
       setUser(userData);
     } else {
-      // Decode user fallback
+      
       const base64Url = token.split('.')[1];
       let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const pad = base64.length % 4;
