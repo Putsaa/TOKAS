@@ -54,74 +54,10 @@ const TransactionsPage = () => {
       } else if (Array.isArray(res.data?.data)) {
         setTransactions(res.data.data);
       } else {
-        // Fallback realistic mock transactions
-        setTransactions([
-          {
-            id: 1,
-            transactionNo: 'TRX-20251006-001',
-            cashierName: 'Kasir Utama',
-            total: 125000,
-            paymentAmount: 150000,
-            changeAmount: 25000,
-            paymentMethod: 'Tunai',
-            createdAt: '2025-10-06T10:15:00Z',
-          },
-          {
-            id: 2,
-            transactionNo: 'TRX-20251006-002',
-            cashierName: 'Kasir Utama',
-            total: 320000,
-            paymentAmount: 320000,
-            changeAmount: 0,
-            paymentMethod: 'QRIS',
-            createdAt: '2025-10-06T09:48:00Z',
-          },
-          {
-            id: 3,
-            transactionNo: 'TRX-20251006-003',
-            cashierName: 'Kasir Shift 1',
-            total: 85000,
-            paymentAmount: 100000,
-            changeAmount: 15000,
-            paymentMethod: 'Tunai',
-            createdAt: '2025-10-06T09:30:00Z',
-          },
-          {
-            id: 4,
-            transactionNo: 'TRX-20251006-004',
-            cashierName: 'Kasir Shift 1',
-            total: 210000,
-            paymentAmount: 210000,
-            changeAmount: 0,
-            paymentMethod: 'QRIS',
-            createdAt: '2025-10-06T08:50:00Z',
-          },
-        ]);
+        setTransactions([]);
       }
     } catch (err) {
-      // Fallback
-      setTransactions([
-        {
-          id: 1,
-          transactionNo: 'TRX-20251006-001',
-          cashierName: 'Kasir Utama',
-          total: 125000,
-          paymentAmount: 150000,
-          changeAmount: 25000,
-          paymentMethod: 'Tunai',
-          createdAt: '2025-10-06T10:15:00Z',
-        },
-        {
-          id: 2,
-          transactionNo: 'TRX-20251006-002',
-          cashierName: 'Kasir Utama',
-          total: 320000,
-          paymentAmount: 320000,
-          changeAmount: 0,
-          paymentMethod: 'QRIS',
-          createdAt: '2025-10-06T09:48:00Z',
-        },
-      ]);
+      setTransactions([]);
     }
   }, []);
 
