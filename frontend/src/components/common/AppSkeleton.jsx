@@ -14,7 +14,6 @@ import {
   Stack,
 } from '@mui/material';
 
-// Skeleton untuk KPI card ringkasan (misal 4 card di atas dashboard)
 export const StatCardSkeleton = ({ count = 4 }) => {
   return (
     <Grid container spacing={3} sx={{ mb: 3.5 }}>
@@ -33,7 +32,6 @@ export const StatCardSkeleton = ({ count = 4 }) => {
   );
 };
 
-// Skeleton untuk Tabel (misal data produk, transaksi, kategori)
 export const TableSkeleton = ({ rows = 5, columns = 5 }) => {
   return (
     <Paper elevation={0} sx={{ borderRadius: 2.5, border: '1px solid #f1f5f9', overflow: 'hidden' }}>
@@ -65,7 +63,6 @@ export const TableSkeleton = ({ rows = 5, columns = 5 }) => {
   );
 };
 
-// Skeleton untuk Grafik / Card Konten
 export const ChartCardSkeleton = ({ height = 340 }) => {
   return (
     <Card sx={{ p: 3, borderRadius: 2, mb: 3 }}>
@@ -76,7 +73,6 @@ export const ChartCardSkeleton = ({ height = 340 }) => {
   );
 };
 
-// Skeleton untuk Halaman Form (misal Tambah Produk / Stok Masuk)
 export const FormSkeleton = ({ fields = 4 }) => {
   return (
     <Card sx={{ p: 3.5, borderRadius: 2.5, maxWidth: 650, mx: 'auto' }}>

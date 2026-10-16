@@ -24,7 +24,7 @@ const PageHeader = ({ title, subtitle, action, extra }) => {
 
   return (
     <Box sx={{ mb: 2.75 }}>
-      {/* Top breadcrumbs */}
+      
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
         <Breadcrumbs
           separator={<NavigateNextIcon sx={{ fontSize: '0.85rem', color: tokens.colors.neutral[400] }} />}
@@ -82,7 +82,6 @@ const PageHeader = ({ title, subtitle, action, extra }) => {
         </Breadcrumbs>
       </Box>
 
-      {/* Main Header Row: Title & Subtitle + Action */}
       <Box
         sx={{
           display: 'flex',

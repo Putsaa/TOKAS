@@ -48,7 +48,6 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
   const roleName = user?.role || 'Owner';
   const avatarLetter = displayName.charAt(0).toUpperCase();
 
-  // Role Badge Variant
   const getRoleVariant = (role) => {
     const r = (role || '').toLowerCase();
     if (r === 'owner') return 'info';
@@ -71,7 +70,7 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
       }}
     >
       <Toolbar sx={{ height: 64, px: { xs: 2, sm: 3 }, justifyContent: 'space-between' }}>
-        {/* Left: Mobile hamburger & Store Brand */}
+        
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <IconButton
             color="inherit"
@@ -130,9 +129,8 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
           </Box>
         </Box>
 
-        {/* Right Section: Quick Kasir Button + Role Badge + Profile */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
-          {/* Quick Kasir Shortcut for Non-Cashier Pages */}
+          
           {location.pathname !== '/kasir' && (
             <Box
               onClick={() => navigate('/kasir')}
@@ -161,7 +159,6 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
             </Box>
           )}
 
-          {/* User Profile Dropdown */}
           <Box
             onClick={handleMenuOpen}
             sx={{
@@ -218,7 +215,6 @@ const AppTopbar = ({ drawerWidth, onDrawerToggle }) => {
           </Box>
         </Box>
 
-        {/* User Menu Modal */}
         <Menu
           anchorEl={anchorEl}
           open={open}
