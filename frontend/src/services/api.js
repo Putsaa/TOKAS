@@ -4,7 +4,6 @@ const api = axios.create({
   baseURL: 'http://localhost:5000/api',
 });
 
-// Helper to ensure token exists in development / active session
 export const ensureAuthToken = async () => {
   let token = localStorage.getItem('token');
   if (!token) {
@@ -21,7 +20,7 @@ export const ensureAuthToken = async () => {
         }
       }
     } catch (e) {
-      // Ignore login error
+      
     }
   }
   return token;

@@ -32,9 +32,8 @@ const MainLayout = () => {
 
   const userRole = (user?.role || 'Owner').toLowerCase();
 
-  // Role-based Nav Items
   const navSections = useMemo(() => {
-    // Kasir only sees POS and Transaction History (Distraction-Free)
+    
     if (userRole === 'kasir') {
       return [
         {
@@ -47,7 +46,6 @@ const MainLayout = () => {
       ];
     }
 
-    // Admin & Owner navigation
     const sections = [
       {
         title: 'UTAMA',
@@ -86,7 +84,7 @@ const MainLayout = () => {
 
   const drawer = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: '#ffffff' }}>
-      {/* Brand Header */}
+      
       <Toolbar
         sx={{
           height: 64,
@@ -111,7 +109,6 @@ const MainLayout = () => {
         />
       </Toolbar>
 
-      {/* Nav List with Sections */}
       <Box
         sx={{
           px: 1.5,
@@ -208,7 +205,6 @@ const MainLayout = () => {
         ))}
       </Box>
 
-      {/* Role Notice at Bottom */}
       <Box
         sx={{
           p: 1.5,
