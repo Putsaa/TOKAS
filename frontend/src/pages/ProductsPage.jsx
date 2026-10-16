@@ -42,19 +42,16 @@ const ProductsPage = () => {
 
   const fetchProducts = useCallback(async () => {
     const items = await fetchAndSyncProducts();
-    if (items && items.length > 0) {
-      setProducts(items);
-    }
+    setProducts(items || []);
   }, []);
 
   const fetchCategories = useCallback(async () => {
     try {
       const res = await api.get('/categories');
-      if (res.data?.data) {
+      if (res.data?.data && Array.isArray(res.data.data)) {
         setCategoryOptions(res.data.data);
       }
     } catch (e) {
-      // Graceful fallback
     }
   }, []);
 
@@ -133,36 +130,53 @@ const ProductsPage = () => {
     }
 
     try {
+      const category = categoryOptions.find(c => c.name === formData.kategori || c.id === formData.categoryId) || categoryOptions[0];
+      const categoryId = category ? category.id : 1;
+
       if (formData.id) {
-        // Edit existing
-        await api.put(`/products/${formData.id}`, formData).catch(() => {});
-        const updated = products.map(p => p.id === formData.id ? { ...formData } : p);
-        setProducts(updated);
-        localStorage.setItem('tokas_mock_products', JSON.stringify(updated));
-        enqueueSnackbar('Produk berhasil diperbarui!', { variant: 'success' });
+        await api.put(`/products/${formData.id}`, {
+          categoryId,
+          code: formData.kode || undefined,
+          name: formData.nama.trim(),
+          purchasePrice: Number(formData.hargaBeli) || 0,
+          sellingPrice: Number(formData.hargaJual) || 0,
+          minimumStock: Number(formData.minimumStock) || 10,
+          unit: formData.unit || 'pcs',
+        });
+        enqueueSnackbar('Produk berhasil diperbarui di database!', { variant: 'success' });
       } else {
-        // Create new
-        const newProd = { ...formData, id: Date.now() };
-        await api.post('/products', newProd).catch(() => {});
-        const updated = [newProd, ...products];
-        setProducts(updated);
-        localStorage.setItem('tokas_mock_products', JSON.stringify(updated));
-        enqueueSnackbar('Produk baru berhasil ditambahkan!', { variant: 'success' });
+        await api.post('/products', {
+          categoryId,
+          code: formData.kode || undefined,
+          name: formData.nama.trim(),
+          purchasePrice: Number(formData.hargaBeli) || 0,
+          sellingPrice: Number(formData.hargaJual) || 0,
+          stock: Number(formData.stok) || 0,
+          minimumStock: Number(formData.minimumStock) || 10,
+          unit: formData.unit || 'pcs',
+        });
+        enqueueSnackbar('Produk baru berhasil disimpan ke database!', { variant: 'success' });
       }
       setOpen(false);
+      await fetchProducts();
     } catch (err) {
-      enqueueSnackbar('Gagal menyimpan produk', { variant: 'error' });
+      const msg = err.response?.data?.message || 'Gagal menyimpan produk ke database';
+      enqueueSnackbar(msg, { variant: 'error' });
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const prod = deleteConfirm.product;
     if (!prod) return;
-    const updated = products.filter(p => p.id !== prod.id);
-    setProducts(updated);
-    localStorage.setItem('tokas_mock_products', JSON.stringify(updated));
-    setDeleteConfirm({ open: false, product: null });
-    enqueueSnackbar(`Produk "${prod.nama}" berhasil dihapus`, { variant: 'info' });
+    try {
+      await api.patch(`/products/${prod.id}/status`, { isActive: false });
+      setDeleteConfirm({ open: false, product: null });
+      enqueueSnackbar(`Status produk "${prod.nama}" berhasil diperbarui`, { variant: 'info' });
+      await fetchProducts();
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Gagal menonaktifkan produk di server';
+      enqueueSnackbar(msg, { variant: 'error' });
+    }
   };
 
   return (

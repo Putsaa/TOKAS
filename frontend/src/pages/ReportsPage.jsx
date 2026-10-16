@@ -50,48 +50,21 @@ const ReportsPage = () => {
       if (res.data?.data) {
         setReport(res.data.data);
       } else {
-        // Fallback
         setReport({
-          totalSales: 8950000,
-          totalTransactions: 142,
-          totalItemsSold: 380,
-          dailySales: [
-            { date: '2025-10-01', totalSales: 950000, transactionCount: 18 },
-            { date: '2025-10-02', totalSales: 1100000, transactionCount: 20 },
-            { date: '2025-10-03', totalSales: 1350000, transactionCount: 24 },
-            { date: '2025-10-04', totalSales: 1200000, transactionCount: 21 },
-            { date: '2025-10-05', totalSales: 1750000, transactionCount: 27 },
-            { date: '2025-10-06', totalSales: 2600000, transactionCount: 32 },
-          ],
-          bestSellers: [
-            { productId: 1, productName: 'Kertas Thermal 58mm', totalQuantity: 75, totalRevenue: 1875000 },
-            { productId: 2, productName: 'Tinta Printer Kasir', totalQuantity: 28, totalRevenue: 2380000 },
-            { productId: 3, productName: 'Buku Tulis A5', totalQuantity: 92, totalRevenue: 690000 },
-            { productId: 4, productName: 'Pulpen Standard', totalQuantity: 120, totalRevenue: 360000 },
-            { productId: 5, productName: 'Plastik Shopping Bag', totalQuantity: 65, totalRevenue: 325000 },
-          ],
+          totalSales: 0,
+          totalTransactions: 0,
+          totalItemsSold: 0,
+          dailySales: [],
+          bestSellers: [],
         });
       }
     } catch (err) {
-      // Fallback
       setReport({
-        totalSales: 8950000,
-        totalTransactions: 142,
-        totalItemsSold: 380,
-        dailySales: [
-          { date: '2025-10-01', totalSales: 950000, transactionCount: 18 },
-          { date: '2025-10-02', totalSales: 1100000, transactionCount: 20 },
-          { date: '2025-10-03', totalSales: 1350000, transactionCount: 24 },
-          { date: '2025-10-04', totalSales: 1200000, transactionCount: 21 },
-          { date: '2025-10-05', totalSales: 1750000, transactionCount: 27 },
-          { date: '2025-10-06', totalSales: 2600000, transactionCount: 32 },
-        ],
-        bestSellers: [
-          { productId: 1, productName: 'Kertas Thermal 58mm', totalQuantity: 75, totalRevenue: 1875000 },
-          { productId: 2, productName: 'Tinta Printer Kasir', totalQuantity: 28, totalRevenue: 2380000 },
-          { productId: 3, productName: 'Buku Tulis A5', totalQuantity: 92, totalRevenue: 690000 },
-          { productId: 4, productName: 'Pulpen Standard', totalQuantity: 120, totalRevenue: 360000 },
-        ],
+        totalSales: 0,
+        totalTransactions: 0,
+        totalItemsSold: 0,
+        dailySales: [],
+        bestSellers: [],
       });
     }
   }, []);
@@ -100,9 +73,9 @@ const ReportsPage = () => {
     fetchReport();
   }, [fetchReport]);
 
-  const totalSalesVal = report?.totalSales ?? 8950000;
-  const totalTrxVal = report?.totalTransactions ?? 142;
-  const totalItemsVal = report?.totalItemsSold ?? 380;
+  const totalSalesVal = report?.totalSales ?? 0;
+  const totalTrxVal = report?.totalTransactions ?? 0;
+  const totalItemsVal = report?.totalItemsSold ?? 0;
   const estimatedProfit = Math.round(totalSalesVal * 0.28); // Approx 28% gross margin
 
   // Chart data
